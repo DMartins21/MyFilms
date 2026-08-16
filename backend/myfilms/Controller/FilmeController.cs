@@ -57,8 +57,10 @@ public class FilmeController : ControllerBase
     {
         var filme = await FilmesEmCache();
         var res = filme.Where(fil => fil.Id == id);
-        if(filme == null) 
-            return NotFound("Filme não localizado");
+        
+        if(res == null || !res.Any()) 
+            return NotFound();
+        
         return Ok(res);
     }
 
@@ -103,6 +105,9 @@ public class FilmeController : ControllerBase
 
             var req = filmesRemoved.FirstOrDefault(f => f.Id == idFilme);
 
+            if (req == null)
+                return NotFound();
+            
             req.Id = 0;
             _context.Filmes.Add(req);
             await _context.SaveChangesAsync();
@@ -112,8 +117,7 @@ public class FilmeController : ControllerBase
             filmesRemoved.Remove(req);
             _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
             
-            return Ok(CreatedAtAction("GetFilme", new { id = req.Id }, filmesRemoved));
-            // return CreatedAtAction("GetFilme", new { id = req.Id }, req);
+            return CreatedAtAction("GetFilme", new { id = req.Id }, req);
         }
         
         var filme = filmesRemoved.FirstOrDefault(f => f.Title == titulo);
@@ -130,8 +134,7 @@ public class FilmeController : ControllerBase
         filmesRemoved.Remove(filme);
         _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
         
-        return Ok(CreatedAtAction("GetFilme", new { id = filme.Id }, filme));
-        // return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
+        return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
     }
     
     [HttpPatch("alterarTitulo/{titulo}")]
@@ -140,6 +143,7 @@ public class FilmeController : ControllerBase
         var res = await _context.Filmes.FirstOrDefaultAsync(
             fil => fil.Title == titulo || fil.Title.Contains(titulo)
             );
+        
         if (res == null)
             return NotFound("Filme não encontrado");
         
