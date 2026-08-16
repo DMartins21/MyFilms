@@ -86,11 +86,35 @@ public class FilmeController : ControllerBase
     }
 
     [HttpPost("restaurar/{titulo}")]
-    public async Task<ActionResult<Filme>> RestaurarFilme(string titulo)
+    public async Task<ActionResult<Filme>> RestaurarFilme(string titulo, int? idFilme)
     {
         if (!_cache.TryGetValue("cache_FilmsDeleted", out List<Filme>? filmesRemoved) ||
             filmesRemoved == null || !filmesRemoved.Any())
             return NotFound("Não há filmes deletados na memória");
+        
+        if (filmesRemoved.Where(f => f.Title == titulo).Count() > 1)
+        {
+            if(idFilme == null)
+                return Conflict(new
+                {
+                    mensagem = $"Existe mais de um Filme com o Titulo {titulo}",
+                    options = filmesRemoved.Select(f => new { f.Id, f.Title })
+                });
+
+            var req = filmesRemoved.FirstOrDefault(f => f.Id == idFilme);
+
+            req.Id = 0;
+            _context.Filmes.Add(req);
+            await _context.SaveChangesAsync();
+            
+            _cache.Remove("cache_Films");
+            
+            filmesRemoved.Remove(req);
+            _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
+            
+            return Ok(CreatedAtAction("GetFilme", new { id = req.Id }, filmesRemoved));
+            // return CreatedAtAction("GetFilme", new { id = req.Id }, req);
+        }
         
         var filme = filmesRemoved.FirstOrDefault(f => f.Title == titulo);
         
@@ -106,7 +130,8 @@ public class FilmeController : ControllerBase
         filmesRemoved.Remove(filme);
         _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
         
-        return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
+        return Ok(CreatedAtAction("GetFilme", new { id = filme.Id }, filme));
+        // return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
     }
     
     [HttpPatch("alterarTitulo/{titulo}")]
