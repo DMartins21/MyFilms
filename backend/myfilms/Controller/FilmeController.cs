@@ -19,27 +19,43 @@ public class FilmeController : ControllerBase
         _cache = cache;
     }
 
-    private async Task<IEnumerable<Filme>> SalvarCache()
+    private async Task<IEnumerable<Filme>> FilmesEmCache()
     {
         if (!_cache.TryGetValue("cache_Films", out List<Filme>? filmes))
         {
             filmes = await _context.Filmes.ToListAsync();
-            _cache.Set("cache_Films", filmes, TimeSpan.FromMinutes(10));
+            _cache.Set("cache_Films", filmes, TimeSpan.FromDays(1));
         }
         return filmes.ToList();
+    }
+
+    private ActionResult<IEnumerable<Filme>> FilmesDeletados()
+    {
+        if (_cache.TryGetValue("cache_FilmsDeleted", out List<Filme>? removedFilms))
+        {
+            return Ok(removedFilms);
+        }
+
+        return NoContent();
     }
     
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Filme>>> GetFilme()
     {
-        var filmes=  await SalvarCache();
+        var filmes=  await FilmesEmCache();
         return Ok(filmes);
+    }
+
+    [HttpGet("FilmesRemovidos")]
+    public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesRemovidos()
+    {
+        return FilmesDeletados();
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<Filme>> GetFilmeById(int id)
     {
-        var filme = await SalvarCache();
+        var filme = await FilmesEmCache();
         var res = filme.Where(fil => fil.Id == id);
         if(filme == null) 
             return NotFound("Filme não localizado");
@@ -50,7 +66,7 @@ public class FilmeController : ControllerBase
     public async Task<ActionResult<Filme>> GetFilmeByTitle(string title)
     {
         
-        var result = await SalvarCache();
+        var result = await FilmesEmCache();
         if(result == null || result == Empty) 
             return NotFound($"Filme {title} não Encontrado");
         
@@ -69,6 +85,30 @@ public class FilmeController : ControllerBase
         return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
     }
 
+    [HttpPost("restaurar/{titulo}")]
+    public async Task<ActionResult<Filme>> RestaurarFilme(string titulo)
+    {
+        if (!_cache.TryGetValue("cache_FilmsDeleted", out List<Filme>? filmesRemoved) ||
+            filmesRemoved == null || !filmesRemoved.Any())
+            return NotFound("Não há filmes deletados na memória");
+        
+        var filme = filmesRemoved.FirstOrDefault(f => f.Title == titulo);
+        
+        if (filme == null)
+            return NotFound();
+        
+        filme.Id = 0;
+        _context.Filmes.Add(filme);
+        await _context.SaveChangesAsync();
+        
+        _cache.Remove("cache_Films");
+        
+        filmesRemoved.Remove(filme);
+        _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
+        
+        return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
+    }
+    
     [HttpPatch("alterarTitulo/{titulo}")]
     public async Task<ActionResult<Filme>> AlterarDadosFIlme(string titulo, [FromBody] Filme filmeAtualizado)
     {
@@ -95,10 +135,15 @@ public class FilmeController : ControllerBase
     {
         var res = await _context.Filmes.FindAsync(id);
         if (res == null)
-            return NoContent();
+            return NotFound();
         
-        _context.Filmes.ExecuteDeleteAsync();
-        _context.SaveChangesAsync();
+        if(!_cache.TryGetValue("cache_FilmsDeleted", out List<Filme>? filmesRemoved))
+            filmesRemoved = new List<Filme>();
+        filmesRemoved!.Add(res);
+        _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
+        
+        _context.Filmes.Remove(res);
+        await _context.SaveChangesAsync();
         _cache.Remove("cache_Films");
         return Ok($"Filme {res.Title} Deletado com sucesso");
     }
