@@ -5,7 +5,7 @@ using myfilms.Models;
 using myfilms.Context;
 
 
-namespace myfilms.Controller;
+namespace myfilms.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class FilmeController : ControllerBase
