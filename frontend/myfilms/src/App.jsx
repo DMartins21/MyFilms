@@ -5,8 +5,7 @@ function App() {
 
   return (
     <>
-    <Header />
-    <div className="Home">
+    <div className="home" >
       <h1>Bem-vindo ao myfilms</h1>
       <p>O myfilms é um projeto de catalogação de filmes.</p>
     </div>
