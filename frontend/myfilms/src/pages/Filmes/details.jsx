@@ -1,26 +1,35 @@
 import {useState, useEffect} from 'react'
 import {useParams, Link} from 'react-router-dom'
+import Error from '../Error'
+import Api from '../../services/api'
 
-const url = 'http://localhost:5290/api/Filme/titulo'
+// const url = 'http://localhost:5290/api/Filme/Titulo'
 
 function Details()
 {
-    const { title } = useParams()
+    const { id } = useParams()
     const [filme, setFilme] = useState(null)
 
     useEffect(() => {
-        function getFilme()
-        {
-            fetch(`${url}/${title}`)
-            .then(response => response.json())
-            .then(json =>  setFilme(json))
-            .catch(error => console.log(error))
+
+        async function getDetails(){
+            try{
+                const data = await Api(id)
+                setFilme(data)
+            }catch(error){
+                console.error('Ocorreu um erro na requisição:', error)
+            }
         }
 
-        getFilme()
-    },[title])
+        getDetails()
 
-    if(!filme) return <p>Carregando...</p>
+    },[id])
+
+    if(!filme)
+        return(
+        <>
+            <Error />
+        </>)
 
     return(
         <>
@@ -40,7 +49,7 @@ function Details()
                     </div>
                 <div className="filme-info-box">
                     <span className="filme-info-label">Gênero:</span>
-                    <span className="filme-info-valor">{filme.genre.join(', ')}</span>
+                    <span className="filme-info-valor">{Array.isArray(filme.genre) ? filme.genre.join(', ') : filme.g}</span>
                 </div>
                 </div>
             </div>
