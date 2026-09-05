@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using myfilms.Models;
@@ -19,14 +20,18 @@ public class FilmeController : ControllerBase
         _cache = cache;
     }
 
+    private async Task<List<Filme>> GetFilmesInDB()
+    {
+        var filmes = await _context.Filmes.ToListAsync();
+        _cache.Set("cache_Films", filmes, TimeSpan.FromMinutes(30));
+        return filmes;
+    }
+    
     private async Task<IEnumerable<Filme>> FilmesEmCache()
     {
         if (!_cache.TryGetValue("cache_Films", out List<Filme>? filmes))
-        {
-            filmes = await _context.Filmes.ToListAsync();
-            _cache.Set("cache_Films", filmes, TimeSpan.FromDays(1));
-        }
-        return filmes.ToList();
+            filmes = await GetFilmesInDB();
+        return filmes;
     }
 
     private ActionResult<IEnumerable<Filme>> FilmesDeletados()
@@ -42,7 +47,11 @@ public class FilmeController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Filme>>> GetFilme()
     {
-        var filmes=  await FilmesEmCache();
+        var filmes = await FilmesEmCache();
+        
+        if(filmes == null)
+            return NoContent();
+        
         return Ok(filmes);
     }
 
@@ -55,28 +64,27 @@ public class FilmeController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<Filme>> GetFilmeById(int id)
     {
-        var filme = await FilmesEmCache();
-        var res = filme.Where(fil => fil.Id == id);
-        
-        if(res == null || !res.Any()) 
+        var search =  await FilmesEmCache();
+        var filme = search.FirstOrDefault(f => f.Id == id);
+        if(filme == null) 
             return NotFound();
         
-        return Ok(res);
-    }
-
-    [HttpGet("titulo/{title}")]
-    public async Task<ActionResult<Filme>> GetFilmeByTitle(string title)
-    {
-        
-        var result = await FilmesEmCache();
-        if(result == null || result == Empty) 
-            return NotFound($"Filme {title} não Encontrado");
-        
-        var filme = result.Where(film => film.Title == title || film.Title.Contains(title)).FirstOrDefault();
         return Ok(filme);
     }
 
+    [HttpGet("titulo/{title}")]
+    public async Task<ActionResult<IEnumerable<Filme>>> GetFilmeByTitle(string title)
+    {
+        var filmes = await FilmesEmCache();
+        var search = filmes.Where(f => f.Title.ToLower().Contains(title.ToLower()))
+            .ToList().OrderBy(f => f.Id);
+        if(!search.Any())
+            return NoContent();
+        return Ok(search);
+    }
+
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<Filme>> PostFilme([FromBody]Filme filme)
     {
         if (!ModelState.IsValid)
@@ -85,6 +93,15 @@ public class FilmeController : ControllerBase
         await _context.SaveChangesAsync();
         _cache.Remove("cache_Films");
         return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
+    }
+
+    [HttpPost("postRange")]
+    [Authorize]
+    public async Task<IActionResult> PostInRange(List<Filme> filmes)
+    {
+        await _context.Filmes.AddRangeAsync(filmes);
+        await _context.SaveChangesAsync();
+        return  Ok();
     }
 
     [HttpPost("restaurar/{titulo}")]
@@ -137,13 +154,10 @@ public class FilmeController : ControllerBase
         return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
     }
     
-    [HttpPatch("alterarTitulo/{titulo}")]
-    public async Task<ActionResult<Filme>> AlterarDadosFIlme(string titulo, [FromBody] Filme filmeAtualizado)
+    [HttpPut("alterarTitulo/{id}")]
+    public async Task<ActionResult<Filme>> AlterarDadosFilme(int id, [FromBody] Filme filmeAtualizado)
     {
-        var res = await _context.Filmes.FirstOrDefaultAsync(
-            fil => fil.Title == titulo || fil.Title.Contains(titulo)
-            );
-        
+        var res = await _context.Filmes.FindAsync(id);
         if (res == null)
             return NotFound("Filme não encontrado");
         
