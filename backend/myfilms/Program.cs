@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using myfilms.Context;
+using myfilms.Models;
+using myfilms.Services;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +16,7 @@ builder.Services.AddOpenApi();
 
 var provider = builder.Configuration["DatabaseProvider"];
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
@@ -53,6 +55,8 @@ builder.Services.AddAuthentication(options =>
             Encoding.UTF8.GetBytes(secretKey))
     };
 });
+
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddAuthorization();
 
