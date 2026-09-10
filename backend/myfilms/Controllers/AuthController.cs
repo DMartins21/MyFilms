@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using myfilms.DTOs;
@@ -97,5 +98,62 @@ public class AuthController : ControllerBase
             Status = "Success",
             Message = "User created successfully"
         });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> RefreshToken(TokenModelDTO tokenModel)
+    {
+        if (tokenModel is null) 
+            return BadRequest();
+
+        string? accessToken = tokenModel.AccessToken
+                             ?? throw new ArgumentNullException(nameof(tokenModel));
+
+        string? refreshToken = tokenModel.RefreshToken
+                               ?? throw new ArgumentNullException(nameof(tokenModel));
+
+        var principal = _tokenService.GetPrincipalFromExpiredToken(accessToken!, _configuration);
+
+        if (principal == null)
+            return BadRequest("Invalid access token/refresh token");
+
+        string userName = principal.Identity.Name;
+
+        var user = await _userManager.FindByNameAsync(userName);
+
+        if (user == null
+            || user.RefreshToken != refreshToken
+            || user.RefreshTokenExpires <= DateTime.UtcNow)
+        {
+            return BadRequest("Invalid access token/refresh token");
+        }
+
+        var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims.ToList(), _configuration);
+        var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+        user.RefreshToken = newRefreshToken;
+        await _userManager.UpdateAsync(user);
+
+        return new ObjectResult(new
+        {
+            accessToken = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
+            refreshToken = newRefreshToken
+        });
+    }
+
+    [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Revoke(string userName)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+
+        if (user == null)
+            return BadRequest("Invalid userName");
+
+        user.RefreshToken = null;
+
+        await _userManager.UpdateAsync(user);
+
+        return NoContent();
     }
 }
