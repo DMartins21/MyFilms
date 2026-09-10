@@ -1,12 +1,14 @@
-﻿using myfilms.Models;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using myfilms.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace myfilms.Context;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    { }
+    {}
 
     public DbSet<Filme> Filmes { get; set; }
 }
