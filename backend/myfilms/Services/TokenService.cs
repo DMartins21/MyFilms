@@ -23,7 +23,7 @@ public class TokenService : ITokenService
         {
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddHours(_config.GetSection("JWT")
-                    .GetValue<double>("TokenValidInHours")), 
+                    .GetValue<double>("TokenValidityInHours")), 
                 Audience = _config.GetSection("JWT")
                     .GetValue<string>("ValidAudience"),
                 Issuer = _config.GetSection("JWT")
@@ -41,7 +41,7 @@ public class TokenService : ITokenService
     {
         var secureRandomBytes = new byte[128];
 
-        var randomNumberGenerator = RandomNumberGenerator.Create();
+        using var randomNumberGenerator = RandomNumberGenerator.Create();
 
         randomNumberGenerator.GetBytes(secureRandomBytes);
 

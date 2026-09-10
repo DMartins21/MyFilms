@@ -86,13 +86,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseHttpsRedirection();
+
 app.UseRouting();
 app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseHttpsRedirection();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

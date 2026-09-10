@@ -14,11 +14,11 @@ namespace myfilms.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IConfiguration _configuration;
-    private readonly TokenService _tokenService;
+    private readonly ITokenService _tokenService;
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
 
-    public AuthController(IConfiguration config, TokenService tokenService,
+    public AuthController(IConfiguration config, ITokenService tokenService,
         UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
     {
         _configuration = config;
@@ -28,6 +28,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost]
+    [Route("Login")]
     public async Task<IActionResult> Login([FromBody]LoginModelDTO loginModel)
     {
         var user = await _userManager.FindByNameAsync(loginModel.UserName!);
@@ -68,9 +69,10 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost]
+    [Route("Register")]
     public async Task<IActionResult> Register([FromBody] RegisterModelDTO registerModel)
     {
-        var user = _userManager.FindByNameAsync(registerModel.UserName!);
+        var user = await _userManager.FindByNameAsync(registerModel.UserName!);
         
         if(user != null)
         {
@@ -101,6 +103,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost]
+    [Route("RefreshToken")]
     public async Task<IActionResult> RefreshToken(TokenModelDTO tokenModel)
     {
         if (tokenModel is null) 
@@ -143,6 +146,7 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpPost]
+    [Route("Revoke/user")]
     public async Task<IActionResult> Revoke(string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);

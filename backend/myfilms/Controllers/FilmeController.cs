@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -55,6 +56,7 @@ public class FilmeController : ControllerBase
         return Ok(filmes);
     }
 
+    [Authorize]
     [HttpGet("FilmesRemovidos")]
     public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesRemovidos()
     {
@@ -83,8 +85,8 @@ public class FilmeController : ControllerBase
         return Ok(search);
     }
 
-    [HttpPost]
     [Authorize]
+    [HttpPost]
     public async Task<ActionResult<Filme>> PostFilme([FromBody]Filme filme)
     {
         if (!ModelState.IsValid)
@@ -95,8 +97,8 @@ public class FilmeController : ControllerBase
         return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
     }
 
-    [HttpPost("postRange")]
     [Authorize]
+    [HttpPost("postRange")]
     public async Task<IActionResult> PostInRange(List<Filme> filmes)
     {
         await _context.Filmes.AddRangeAsync(filmes);
@@ -104,6 +106,7 @@ public class FilmeController : ControllerBase
         return  Ok();
     }
 
+    [Authorize]
     [HttpPost("restaurar/{titulo}")]
     public async Task<ActionResult<Filme>> RestaurarFilme(string titulo, int? idFilme)
     {
@@ -154,6 +157,7 @@ public class FilmeController : ControllerBase
         return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
     }
     
+    [Authorize]
     [HttpPut("alterarTitulo/{id}")]
     public async Task<ActionResult<Filme>> AlterarDadosFilme(int id, [FromBody] Filme filmeAtualizado)
     {
@@ -172,7 +176,8 @@ public class FilmeController : ControllerBase
         _cache.Remove("cache_Films");
         return Ok(res);
     }
-
+    
+    [Authorize]
     [HttpDelete("{id:int}")]
     public async Task<ActionResult<Filme>> DeletarFilme(int id)
     {
