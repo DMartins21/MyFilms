@@ -66,17 +66,18 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("SuperAdminOnly",
         policy => 
             policy.RequireRole("SuperAdmin")
-            .RequireClaim("id", "davi"));
+            .RequireClaim("id", "myUser"));
     
     options.AddPolicy("UserOnly", policy => 
         policy.RequireClaim("User"));
-    
-    options.AddPolicy("SpecialUserOnly", policy => 
-        policy.RequireAssertion(
-        context => context.User.HasClaim
-        (claim => claim.Type == "id"
-        && claim.Value == "davi"
-        || context.User.IsInRole("SuperAdmin"))));
+
+   
+    // options.AddPolicy("SpecialUserOnly", policy => 
+    //     policy.RequireAssertion(
+    //     context => context.User.HasClaim
+    //     (claim => claim.Type == "id"
+    //     && claim.Value == "davi"
+    //     || context.User.IsInRole("SuperAdmin"))));
 });
 
 builder.Services.AddScoped<ITokenService, TokenService>();

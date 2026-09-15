@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client.NativeInterop;
 using myfilms.DTOs;
 using myfilms.Models;
@@ -81,12 +82,14 @@ public class AuthController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError,
                 new Response{ Status = "Error", Message = "User already exists" });
         }
+        
+        await RolesExist();
 
         User newUser = new User()
         {
             Email = registerModel.Email,
             SecurityStamp = Guid.NewGuid().ToString(),
-            UserName = registerModel.UserName
+            UserName = registerModel.UserName,
         };
 
         var result = await _userManager.CreateAsync(newUser, registerModel.Password!);
@@ -94,8 +97,10 @@ public class AuthController : ControllerBase
         if (!result.Succeeded)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, 
-                new Response{ Status = "Error", Message = "User Creation Failed."});
+                new Response{ Status = "Error", Message = $"User Creation Failed. {string.Join(", ", result.Errors.Select(e=> e.Description))}"});
         }
+        
+        await _userManager.AddToRoleAsync(newUser, "User");
 
         return Ok(new Response()
         {
@@ -104,7 +109,7 @@ public class AuthController : ControllerBase
         });
     }
 
-    [HttpPost, Authorize(Policy = "UserOnly") , Route("RefreshToken")]
+    [HttpPost, Route("RefreshToken")]
     public async Task<IActionResult> RefreshToken(TokenModelDTO tokenModel)
     {
         if (tokenModel is null) 
@@ -164,6 +169,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> CreateRole(string roleName)
     {
         var roleExist = await _roleManager.RoleExistsAsync(roleName);
+        
         if (!roleExist)
         {
             var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
@@ -209,5 +215,28 @@ public class AuthController : ControllerBase
         }
         
         return BadRequest(new { error = "Unable to find user" });
+    }
+
+    private async Task RolesExist()
+    {
+        var roles = await _roleManager.Roles.ToListAsync();
+        if (!roles.Any())
+        {
+            var newRoles = new List<IdentityRole>
+            {
+                new IdentityRole("SuperAdmin"),
+                new IdentityRole("Admin"),
+                new IdentityRole("User")
+            };
+
+            foreach (var role in newRoles)
+            {
+                await _roleManager.CreateAsync(role);
+            }
+            
+            // var superAdmin = await _roleManager.CreateAsync(new IdentityRole("SuperAdmin"));
+            // var Admin = await _roleManager.CreateAsync(new IdentityRole("Admin"));
+            // var user = await _roleManager.CreateAsync(new IdentityRole("User"));
+        }
     }
 }
