@@ -56,8 +56,7 @@ public class FilmeController : ControllerBase
         return Ok(filmes);
     }
 
-    [Authorize]
-    [HttpGet("FilmesRemovidos")]
+    [HttpGet("FilmesRemovidos"), Authorize(Policy =  "AdminOnly")]
     public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesRemovidos()
     {
         return FilmesDeletados();
@@ -85,8 +84,7 @@ public class FilmeController : ControllerBase
         return Ok(search);
     }
 
-    [Authorize]
-    [HttpPost]
+    [HttpPost, Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<Filme>> PostFilme([FromBody]Filme filme)
     {
         if (!ModelState.IsValid)
@@ -97,8 +95,8 @@ public class FilmeController : ControllerBase
         return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
     }
 
-    [Authorize]
-    [HttpPost("postRange")]
+    
+    [HttpPost("postRange"), Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> PostInRange(List<Filme> filmes)
     {
         await _context.Filmes.AddRangeAsync(filmes);
@@ -106,8 +104,8 @@ public class FilmeController : ControllerBase
         return  Ok();
     }
 
-    [Authorize]
-    [HttpPost("restaurar/{titulo}")]
+    
+    [HttpPost("restaurar/{titulo}"), Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<Filme>> RestaurarFilme(string titulo, int? idFilme)
     {
         if (!_cache.TryGetValue("cache_FilmsDeleted", out List<Filme>? filmesRemoved) ||
@@ -157,8 +155,7 @@ public class FilmeController : ControllerBase
         return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
     }
     
-    [Authorize]
-    [HttpPut("alterarTitulo/{id}")]
+    [HttpPut("alterarTitulo/{id}"), Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<Filme>> AlterarDadosFilme(int id, [FromBody] Filme filmeAtualizado)
     {
         var res = await _context.Filmes.FindAsync(id);
@@ -177,8 +174,7 @@ public class FilmeController : ControllerBase
         return Ok(res);
     }
     
-    [Authorize]
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id:int}"), Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<Filme>> DeletarFilme(int id)
     {
         var res = await _context.Filmes.FindAsync(id);
