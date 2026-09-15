@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client.NativeInterop;
 using myfilms.DTOs;
 using myfilms.Models;
 using myfilms.Services;
@@ -17,18 +18,19 @@ public class AuthController : ControllerBase
     private readonly ITokenService _tokenService;
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly ILogger<AuthController> _logger;
 
     public AuthController(IConfiguration config, ITokenService tokenService,
-        UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ILogger<AuthController> logger)
     {
         _configuration = config;
         _tokenService = tokenService;
         _userManager = userManager;
         _roleManager = roleManager;
+        _logger = logger;
     }
 
-    [HttpPost]
-    [Route("Login")]
+    [HttpPost, Route("Login")]
     public async Task<IActionResult> Login([FromBody]LoginModelDTO loginModel)
     {
         var user = await _userManager.FindByNameAsync(loginModel.UserName!);
@@ -41,6 +43,7 @@ public class AuthController : ControllerBase
             {
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Email, user.Email),
+                new Claim("id", user.UserName!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
             
@@ -68,8 +71,7 @@ public class AuthController : ControllerBase
         return Unauthorized();
     }
 
-    [HttpPost]
-    [Route("Register")]
+    [HttpPost, Route("Register")]
     public async Task<IActionResult> Register([FromBody] RegisterModelDTO registerModel)
     {
         var user = await _userManager.FindByNameAsync(registerModel.UserName!);
@@ -102,8 +104,7 @@ public class AuthController : ControllerBase
         });
     }
 
-    [HttpPost]
-    [Route("RefreshToken")]
+    [HttpPost, Authorize(Policy = "UserOnly") , Route("RefreshToken")]
     public async Task<IActionResult> RefreshToken(TokenModelDTO tokenModel)
     {
         if (tokenModel is null) 
@@ -144,9 +145,7 @@ public class AuthController : ControllerBase
         });
     }
 
-    [Authorize]
-    [HttpPost]
-    [Route("Revoke/user")]
+    [HttpPost, Authorize(Policy = "SuperAdminOnly"), Route("Revoke/user")]
     public async Task<IActionResult> Revoke(string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);
@@ -159,5 +158,56 @@ public class AuthController : ControllerBase
         await _userManager.UpdateAsync(user);
 
         return NoContent();
+    }
+
+    [HttpPost, Authorize(Policy = "SpecialUserOnly"), Route("CreateRole")]
+    public async Task<IActionResult> CreateRole(string roleName)
+    {
+        var roleExist = await _roleManager.RoleExistsAsync(roleName);
+        if (!roleExist)
+        {
+            var roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
+            if (roleResult.Succeeded)
+            {   
+                _logger.LogInformation(1, "Role Added");
+                return StatusCode(StatusCodes.Status200OK,
+                    new Response { Status = "Success", Message = $"Role {roleName} added successfully" });
+            }
+            else
+            {
+                _logger.LogInformation(2, "Error");
+                return StatusCode(StatusCodes.Status400BadRequest,
+                    new Response { Status = "Error", Message = $"Issue adding the new {roleName} role" });
+            }
+        }
+        
+        return StatusCode(StatusCodes.Status400BadRequest,
+            new Response { Status = "Error", Message = $"Role {roleName} already exists" });
+    }
+
+    [HttpPost, Authorize(Policy = "AdminOnly"), Route("AddUserToRole")]
+    public async Task<IActionResult> AddUserToRole(string email, string roleName)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user != null)
+        {
+            var result = await _userManager.AddToRoleAsync(user, roleName);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation(1, $"User {user.Email} added to {roleName} role");
+                return StatusCode(StatusCodes.Status200OK,
+                    new Response { Status = "Success", Message = $"User {user.Email} added to the {roleName} role" });
+            }
+            else
+            {
+                _logger.LogInformation(2, "Error");
+                return StatusCode(StatusCodes.Status400BadRequest,
+                    new Response { Status = "Error", Message = $"Unable to add user {user.Email} to the {roleName} role" });
+            }
+        }
+        
+        return BadRequest(new { error = "Unable to find user" });
     }
 }
