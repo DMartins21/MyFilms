@@ -29,7 +29,7 @@ var connectionPostgre = builder.Configuration.GetConnectionString("PostgreSql");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    if (provider == "PostgreSQL")
+    if (provider == "PostgreSql")
         options.UseNpgsql(connectionPostgre);
     else
         options.UseSqlServer(connectionSqlServer);
