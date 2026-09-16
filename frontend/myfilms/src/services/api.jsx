@@ -1,5 +1,5 @@
-async function Api(endpoint = ''){
-    const apiUrl = `http://localhost:5290/api/Filme/${endpoint}`
+async function Api(endpoint = '', value = ''){
+    const apiUrl = value ? `http://localhost:5290/api/Filme/${endpoint}/${encodeURIComponent(value)}` : `http://localhost:5290/api/Filme/${endpoint}`
 
     try {
 
@@ -14,6 +14,7 @@ async function Api(endpoint = ''){
 
     }catch (error) {
         console.error('Erro ao buscar dados da API:', error)
+        throw error
     }
 }
 
