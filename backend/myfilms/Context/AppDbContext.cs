@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace myfilms.Context;
 
-public class AppDbContext : IdentityDbContext<User>
+public class AppDbContext : IdentityDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {}

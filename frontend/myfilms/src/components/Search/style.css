@@ -1,0 +1,89 @@
+.search-box {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.barra-pesquisa {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-box {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-box::placeholder {
+    color: #777;
+}
+
+.input-box:focus {
+    border-color: #e50914;
+    box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15);
+}
+
+.list-search {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 10;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.list-search:empty {
+    display: none;
+}
+
+.list-search ul {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+}
+
+.list-search li {
+    padding: 0;
+}
+
+.list-search a {
+    display: block;
+    padding: 10px 16px;
+    color: #ddd;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background-color 0.15s ease;
+}
+
+.list-search a:hover {
+    background-color: #2a2a2a;
+    color: #e50914;
+}
+
+/* Scrollbar customizada pra combinar com o tema escuro */
+.list-search::-webkit-scrollbar {
+    width: 6px;
+}
+
+.list-search::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.list-search::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 3px;
+}
