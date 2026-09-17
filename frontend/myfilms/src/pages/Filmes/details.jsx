@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react'
 import {useParams, Link} from 'react-router-dom'
 import Error from '../Error'
-import Api from '../../services/api'
+import Api from '../../services/filmesApi'
 
 // const url = 'http://localhost:5290/api/Filme/Titulo'
 

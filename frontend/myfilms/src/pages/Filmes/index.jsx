@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react'
 import {Link} from 'react-router-dom'
 import Error from '../Error'
-import Api from '../../services/api'
+import Api from '../../services/filmesApi'
 
 function Filmes()
 {

@@ -10,6 +10,8 @@ function Header()
                 <p>O seu site de catalogo de filmes</p>
                 <Link to="/">Home</Link>
                 <Link to="/filmes" >Todos os Filmes</Link>
+                <Link to="/login" >Login</Link>
+
                 <Search />
             </header>
         </div>
