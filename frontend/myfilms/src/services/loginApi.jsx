@@ -1,9 +1,9 @@
-async function Api(endpoint = '', value = ''){
-    const apiUrl = value ? `http://localhost:5290/api/Filme/${endpoint}/${encodeURIComponent(value)}` : `http://localhost:5290/api/Filme/${endpoint}`
+async function LoginApi(endpoint = '', options = {}){
+    const apiUrl = `http://localhost:5290/${endpoint}`
 
     try {
 
-        const response = await fetch(apiUrl)
+        const response = await fetch(apiUrl, options)
 
         if(!response.ok){
             throw new Error(response.statusText)
@@ -18,4 +18,4 @@ async function Api(endpoint = '', value = ''){
     }
 }
 
-export default Api
+export default LoginApi
