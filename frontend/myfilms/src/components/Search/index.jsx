@@ -1,27 +1,26 @@
-import {useState, useEffect} from 'react';
-import {Link, useNavigate} from 'react-router-dom';
-import Api from '../../services/api';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import Api from '../../services/filmesApi';
 import './style.css'
 
-function Search()
-{
+function Search() {
     const [searchValue, setSearchValue] = useState([]);
     const [query, setQuery] = useState('');
     const navigate = useNavigate();
 
 
     useEffect(() => {
-        
-        if(query.trim() === ''){
+
+        if (query.trim() === '') {
             setSearchValue([]);
             return;
         }
 
         const timeOutId = setTimeout(async () => {
-            try{
+            try {
                 const data = await Api('titulo', query);
                 setSearchValue(data);
-            }catch(error){
+            } catch (error) {
                 console.error('Ocorreu um erro na requisição:', error);
                 setSearchValue([]);
                 navigate('/error');
@@ -33,7 +32,7 @@ function Search()
     }, [query])
 
 
-    return(
+    return (
         <>
             <div className="search-box">
                 <div className="barra-pesquisa">
@@ -53,8 +52,8 @@ function Search()
                 )}
             </div>
         </>
-        )
-    
+    )
+
 }
 
 export default Search;
