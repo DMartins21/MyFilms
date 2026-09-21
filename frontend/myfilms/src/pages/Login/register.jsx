@@ -31,12 +31,11 @@ function Register() {
             console.log('Register success', data)
             navigate('/Login')
             toast.success("Usuário Registrado")
-            return data
 
         } catch (e) {
             console.error('Um erro ocorreu:', e)
             setErrorMsg(`${e}`)
-            return null
+            toast.error(e.message)
         }
     }
 
@@ -53,7 +52,7 @@ function Register() {
             temMinuscula: /[a-z]/.test(senha),
             temMaiuscula: /[A-Z]/.test(senha),
             temDigito:  /\d/.test(senha),
-            temCaractereEspecial: /[[^a-zA-Z0-9]/.test(senha)
+            temCaractereEspecial: /[^a-zA-Z0-9]/.test(senha)
         }
 
         const valida = Object.values(regras).every(Boolean)
@@ -73,8 +72,7 @@ function Register() {
 
         const registerData = await registerUser(userName, email , password)
         if (!registerData) {
-            console.error(errorMessage)
-            toast.warning("Ops, não foi possivel validar")
+            return
         }
     }
 

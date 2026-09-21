@@ -9,17 +9,20 @@ import Header from '../components/Header/index.jsx'
 import App from '../App.jsx'
 
 function RoutesApp()
-{
+{   
     return(
         <BrowserRouter>
             <Header />
                 <Routes>
                     <Route path="/" element={<App />} />
-                    <Route path="/login" element={<Login />} />
+
+                    <Route path="/login" element={<Login />}  />
                     <Route path='/register' element={<Register />} />
+
                     <Route path="/filmes" element={<Filmes />} />
                     <Route path='/filmes/favFilms' element={<FavFilms />} />
                     <Route path="/filmes/:id" element={<Details />} />
+
                     <Route path='*' element={<Error />} />
                 </Routes>
         </BrowserRouter>

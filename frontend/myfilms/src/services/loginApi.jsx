@@ -1,3 +1,5 @@
+import { data } from "react-router-dom"
+
 async function LoginApi(endpoint = '', options = {}){
     const apiUrl = `http://localhost:5290/${endpoint}`
 
@@ -5,11 +7,12 @@ async function LoginApi(endpoint = '', options = {}){
 
         const response = await fetch(apiUrl, options)
 
+        const data = await response.json()
+
         if(!response.ok){
-            throw new Error(response.statusText)
+            throw new Error(data.message || response.statusText)
         }
 
-        const data = await response.json()
         return data
 
     }catch (error) {
