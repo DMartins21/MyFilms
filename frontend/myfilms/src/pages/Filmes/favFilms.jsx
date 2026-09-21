@@ -1,5 +1,6 @@
 import { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import './stylefav.css'
 
 function FavFilms(){
@@ -29,11 +30,12 @@ function FavFilms(){
             )
             
         })
-        console.log(film)
 
         setFavoritos(film)
-        console.log(film)
+       
         localStorage.setItem("favoritos", JSON.stringify(film))
+
+        toast.success("Filme Deletado dos Favoritos")
     }
 
     if(favoritos.length == 0)

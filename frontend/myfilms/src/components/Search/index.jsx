@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Api from '../../services/filmesApi';
 import './style.css'
+import { toast } from 'react-toastify';
 
 function Search() {
     const [searchValue, setSearchValue] = useState([]);
@@ -23,6 +24,7 @@ function Search() {
             } catch (error) {
                 console.error('Ocorreu um erro na requisição:', error);
                 setSearchValue([]);
+                toast.error('Parece Não Temos Nada Aqui')
                 navigate('/error');
             }
         }, 1000)

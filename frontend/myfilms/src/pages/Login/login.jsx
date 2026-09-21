@@ -1,6 +1,7 @@
 import { use, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Api from '../../services/loginApi';
+import { toast } from 'react-toastify';
 import Error from '../Error';
 import './style.css';
 
@@ -8,8 +9,8 @@ import './style.css';
 function Login() {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMsg] = useState('')
-    const navigate = useNavigate()
+    const [errorMessage, setErrorMsg] = useState('');
+    const navigate = useNavigate();
 
 
     const loginUser = async (userName, password) => {
@@ -25,21 +26,26 @@ function Login() {
                 }),
             })
             
-            console.log('Login success', data)
-            localStorage.setItem("user", userName)
+            // console.log('Login success', data)
+            sessionStorage.setItem("user", userName.replace("_", " "))
+            sessionStorage.setItem("tokenSession", data.token)
+            sessionStorage.setItem("refreshToken", data.refreshToken)
+            sessionStorage.setItem("expirationToken", data.expiration)
             navigate('/')
-            return data
+            toast.success("Login Efetuado com Sucesso")
+
 
         } catch (e) {
             console.error('Um erro ocorreu:', e)
             setErrorMsg('Usuário ou senha Inválidos')
+            toast.error(`Usuário ou senha Inválidos`)
             return null
         }
     }
 
     useEffect(() => {
         if(errorMessage){
-            const timer = setTimeout(() => setErrorMsg(''), 1500)
+            const timer = setTimeout(() => setErrorMsg(''), 3000)
             return () => clearTimeout(timer)
         }
     }, [errorMessage])
@@ -54,14 +60,6 @@ function Login() {
 
     return (
         <>
-
-        {errorMessage && (
-            <div className="error-banner">
-                {errorMessage}
-                <button className="error-banner-close" onClick={() => setErrorMsg('')}>
-                </button>
-            </div>
-        )}
 
             <div className="login-page">
                 <form className="login-container" onSubmit={handleSubmit}>

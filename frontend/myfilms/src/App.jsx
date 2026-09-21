@@ -1,7 +1,7 @@
 
 function App() {
 
-  const user = localStorage.getItem("user")
+  const user = sessionStorage.getItem("user")
 
   return (
     <>
