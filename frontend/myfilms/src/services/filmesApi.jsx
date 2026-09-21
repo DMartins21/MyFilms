@@ -1,4 +1,4 @@
-async function Api(endpoint = '', value = ''){
+async function FilmesApi(endpoint = '', value = ''){
     const apiUrl = value ? `http://localhost:5290/api/Filme/${endpoint}/${encodeURIComponent(value)}` : `http://localhost:5290/api/Filme/${endpoint}`
 
     try {
@@ -10,6 +10,8 @@ async function Api(endpoint = '', value = ''){
         }
 
         const data = await response.json()
+
+
         return data
 
     }catch (error) {
@@ -18,4 +20,4 @@ async function Api(endpoint = '', value = ''){
     }
 }
 
-export default Api
+export default FilmesApi

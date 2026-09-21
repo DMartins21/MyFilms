@@ -1,7 +1,8 @@
 import {useState, useEffect} from 'react'
 import {useParams, Link} from 'react-router-dom'
 import Error from '../Error'
-import Api from '../../services/api'
+import { toast } from 'react-toastify'
+import Api from '../../services/filmesApi'
 
 // const url = 'http://localhost:5290/api/Filme/Titulo'
 
@@ -30,7 +31,21 @@ function Details()
         <>
             <Error />
         </>)
+    function handleFav(){
+        const listaFav = localStorage.getItem("favoritos")
 
+        let favFilms = JSON.parse(listaFav) || []
+
+        const hasFilm = favFilms.some((favFilms) => favFilms.id === filme.id)
+        if(hasFilm){
+            toast.warn("Filme já está na Lista de Favoritos")
+            return
+        }
+        
+        favFilms.push(filme)
+        localStorage.setItem("favoritos", JSON.stringify(favFilms))
+        toast.success("Filme Adicionado com Sucesso")
+    }
     return(
         <>
             <div className="filme-detalhes-container" style={{ backgroundImage: `url(${filme.imageUrl})` }}>
@@ -54,6 +69,8 @@ function Details()
                 </div>
             </div>
              <Link to="/filmes">Voltar</Link>
+             <br></br>
+             <button onClick={handleFav}>Favoritar</button>
             </div>
         </div>
         </>
