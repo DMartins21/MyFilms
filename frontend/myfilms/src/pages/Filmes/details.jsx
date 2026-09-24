@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react'
 import {useParams, Link} from 'react-router-dom'
 import Error from '../Error'
+import './css/styleDetails.css'
 import { toast } from 'react-toastify'
 import Api from '../../services/filmesApi'
 
@@ -50,7 +51,7 @@ function Details()
         <>
             <div className="filme-detalhes-container" style={{ backgroundImage: `url(${filme.imageUrl})` }}>
                 <div className="filme-detalhe-overlay">
-                <h2 className="Apresentacao">Detalhes Do Filme | {filme.title}</h2>
+                <h2 className="Apresentacao">Detalhes Do Filme : {filme.title}</h2>
             <div className="filme-detalhe-conteudo">
                 <img src={filme.thumbnailUrl} alt={filme.title} className="filme-imagem"/>
                 <div className="filme-info-principal">
@@ -68,9 +69,9 @@ function Details()
                 </div>
                 </div>
             </div>
-             <Link to="/filmes">Voltar</Link>
+             <Link to="/filmes" className='filme-voltar'>Voltar</Link>
              <br></br>
-             <button onClick={handleFav}>Favoritar</button>
+             <button onClick={handleFav} className='favButton'>Favoritar</button>
             </div>
         </div>
         </>

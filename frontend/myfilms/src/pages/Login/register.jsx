@@ -2,8 +2,7 @@ import { use, useEffect, useState } from 'react';
 import { data, useNavigate } from 'react-router-dom';
 import Api from '../../services/loginApi';
 import { toast } from 'react-toastify';
-import Error from '../Error';
-import './style.css';
+import './css/loginStyle.css';
 
 
 function Register() {

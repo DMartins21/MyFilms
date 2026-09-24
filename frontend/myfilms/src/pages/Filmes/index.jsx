@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react'
 import {Link} from 'react-router-dom'
 import Error from '../Error'
+import './css/getFilms.css'
 import Api from '../../services/filmesApi'
 
 function Filmes()
@@ -54,8 +55,8 @@ function Filmes()
                 {filmes.map( filme => (
                 <article key={filme.id} className='getFilmes'>
                     <h3 className='filme-titulo'>{filme.title}</h3>
-                    <p className='filme-descricao'>{filme.description}</p>
                     <img src={filme.thumbnailUrl} alt={filme.title}></img>
+                    <span className='filme-descricao'>{filme.description}</span>
                     <Link to={`${filme.id}`}>Ver Detalhes</Link>
                 </article>
 
