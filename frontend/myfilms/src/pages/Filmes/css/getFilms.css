@@ -1,0 +1,76 @@
+.filmes-container {
+    padding: 2rem 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.filmes-container h2 {
+    text-align: center;
+    color: #ffffff;
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
+.filmes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+}
+
+.getFilmes {
+    background-color: #1c1c1c;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.getFilmes:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+}
+
+.getFilmes img {
+    width: 100%;
+    height: 420px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.getFilmes .filme-titulo {
+    font-size: 1.1rem;
+    color: #ffffff;
+    padding: 0.8rem 1rem 0.3rem;
+    text-align: center;
+}
+
+.getFilmes .filme-descricao {
+    color: #b3b3b3;
+    font-size: 0.85rem;
+    padding: 0 1rem;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.getFilmes a {
+    display: block;
+    text-align: center;
+    background-color: #e50914;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.6rem;
+    margin: 1rem;
+    border-radius: 6px;
+    transition: background-color 0.25s ease;
+}
+
+.getFilmes a:hover {
+    background-color: #b20710;
+}

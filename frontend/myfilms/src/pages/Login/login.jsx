@@ -1,9 +1,8 @@
-import { use, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import Api from '../../services/loginApi';
 import { toast } from 'react-toastify';
-import Error from '../Error';
-import './style.css';
+import './css/loginStyle.css';
 
 
 function Login() {
@@ -33,7 +32,9 @@ function Login() {
             sessionStorage.setItem("expirationToken", data.expiration)
             navigate('/')
             toast.success("Login Efetuado com Sucesso")
-
+            setTimeout(() => {
+                window.location.reload()
+            }, 3000);
 
         } catch (e) {
             console.error('Um erro ocorreu:', e)
@@ -44,6 +45,7 @@ function Login() {
     }
 
     useEffect(() => {
+
         if(errorMessage){
             const timer = setTimeout(() => setErrorMsg(''), 3000)
             return () => clearTimeout(timer)
@@ -60,7 +62,6 @@ function Login() {
 
     return (
         <>
-
             <div className="login-page">
                 <form className="login-container" onSubmit={handleSubmit}>
                     <h2 className="form-title">Bem Vindo ao MyFilms</h2>

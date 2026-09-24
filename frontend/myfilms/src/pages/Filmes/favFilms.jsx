@@ -1,7 +1,7 @@
 import { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import './stylefav.css'
+import './css/stylefav.css'
 
 function FavFilms(){
     const [favoritos, setFavoritos] = useState([])
