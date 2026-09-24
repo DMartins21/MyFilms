@@ -18,7 +18,7 @@ function RoutesApp()
             <Header />
                 <Routes>
                     <Route path="/" element={<App />} />
-                    {!user || Date.UTC.now < exToken ? (
+                    {!user || Date.now() > new Date(exToken).getTime() ? (
                         <>
                             <Route path="/login" element={<Login />}  />
                             <Route path='/register' element={<Register />} />

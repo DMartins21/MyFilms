@@ -6,6 +6,8 @@ function Header()
     const user = sessionStorage.getItem('user')
     const tokenEx = sessionStorage.getItem('expirationToken')
 
+    console.log(Date.now() > new Date(tokenEx).getTime())
+
     return (
         <div>
             <header>
@@ -14,7 +16,7 @@ function Header()
                 <Link to="/">Home</Link>
                 <Link to="/filmes" >Todos os Filmes</Link>
                 
-                {!user || Date.UTC.now < tokenEx  ?
+                {!user || Date.now() > new Date(tokenEx).getTime()  ?
                     (
                         <>
                         <Link to="/login" >Login</Link>
