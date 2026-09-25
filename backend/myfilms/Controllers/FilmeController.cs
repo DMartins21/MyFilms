@@ -1,19 +1,25 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Identity.Client.NativeInterop;
 using myfilms.Models;
 using myfilms.Context;
 
 
 namespace myfilms.Controllers;
+
+[EnableRateLimiting("api")]
 [ApiController]
 [Route("api/[controller]")]
 public class FilmeController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IMemoryCache _cache;
+
+    public record UpdateFilmRequest(string imageUrl, string thumbnailUrl, string description);
 
     public FilmeController(AppDbContext context, IMemoryCache cache)
     {

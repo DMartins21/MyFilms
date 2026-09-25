@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -12,6 +13,13 @@ using myfilms.Services;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHsts(options =>
+{
+    options.MaxAge = TimeSpan.FromDays(365);
+    options.IncludeSubDomains = true;
+    options.Preload = true;
+});
 
 builder.Services.AddOpenApi();
 
@@ -42,7 +50,14 @@ builder.Services.AddAuthentication(options =>
 }).AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = false;
+    if(builder.Environment.IsDevelopment())
+    {
+        options.RequireHttpsMetadata = false;
+    }
+    else
+    {
+        options.RequireHttpsMetadata = true;
+    }
     options.TokenValidationParameters = new TokenValidationParameters()
     {
         ValidateIssuer = true,
@@ -87,6 +102,18 @@ builder.Services.AddOpenApi(options =>
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
 });
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("api", limiter =>
+    {
+        limiter.PermitLimit = 20;
+        limiter.Window = TimeSpan.FromMinutes(1);
+        limiter.QueueLimit = 0;
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 builder.Services.AddControllers();
 builder.Services.AddMemoryCache(options =>
 {
@@ -102,14 +129,26 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
-
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
+app.UseHsts();
 app.UseHttpsRedirection();
-
+if(!app.Environment.IsDevelopment())
+{
+    app.Use(async (context, next) =>
+    {
+        context.Response.Headers.Append("Content-Security-Policy",
+            "default-src 'self'; script-src 'self'; object-src 'none';");
+        context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+        context.Response.Headers.Append("X-Frame-Options", "DENY");
+        await next();
+    });
+}
 app.UseRouting();
 app.UseCors("CorsPolicy");
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -121,6 +160,8 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference(options =>
     {
         options.Title = "MyFilms API";
+        options.Theme = ScalarTheme.BluePlanet;
+        options.Layout = ScalarLayout.Modern;
         options.DefaultHttpClient =
             new KeyValuePair<ScalarTarget, ScalarClient>(ScalarTarget.CSharp, ScalarClient.RestSharp);
         options.Authentication = new ScalarAuthenticationOptions
@@ -128,11 +169,15 @@ if (app.Environment.IsDevelopment())
             PreferredSecuritySchemes = new List<string>{"Bearer"},
         };
     });
+    app.UseDeveloperExceptionPage();
 }
+
+app.UseExceptionHandler();
 
 app.MapControllers();
 
 app.Run();
+
 
 internal sealed class BearerSecuritySchemeTransformer : IOpenApiDocumentTransformer
 {

@@ -6,8 +6,6 @@ function Header()
     const user = sessionStorage.getItem('user')
     const tokenEx = sessionStorage.getItem('expirationToken')
 
-    console.log(Date.now() > new Date(tokenEx).getTime())
-
     return (
         <div>
             <header>

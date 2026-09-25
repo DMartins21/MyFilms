@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client.NativeInterop;
 using myfilms.DTOs;
@@ -12,6 +13,7 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace myfilms.Controllers;
 
+[EnableRateLimiting("api")]
 [ApiController]
 public class AuthController : ControllerBase
 {
@@ -35,7 +37,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody]LoginModelDTO loginModel)
     {
         var user = await _userManager.FindByNameAsync(loginModel.UserName!);
-
+        
         if (user is not null && await _userManager.CheckPasswordAsync(user, loginModel.Password!))
         {
             var userRoles = await _userManager.GetRolesAsync(user);
