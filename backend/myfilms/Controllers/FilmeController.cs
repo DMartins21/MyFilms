@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Identity.Client.NativeInterop;
+using myfilms.DTOs;
 using myfilms.Models;
 using myfilms.Context;
+using myfilms.DTOs.Mappings;
 
 
 namespace myfilms.Controllers;
@@ -18,8 +19,7 @@ public class FilmeController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IMemoryCache _cache;
-
-    public record UpdateFilmRequest(string imageUrl, string thumbnailUrl, string description);
+    
 
     public FilmeController(AppDbContext context, IMemoryCache cache)
     {
@@ -30,7 +30,9 @@ public class FilmeController : ControllerBase
     private async Task<List<Filme>> GetFilmesInDB()
     {
         var filmes = await _context.Filmes.ToListAsync();
+        
         _cache.Set("cache_Films", filmes, TimeSpan.FromMinutes(30));
+        
         return filmes;
     }
     
@@ -52,14 +54,16 @@ public class FilmeController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Filme>>> GetFilme()
+    public async Task<ActionResult<IEnumerable<FilmeDTO>>> GetFilme()
     {
         var filmes = await FilmesEmCache();
         
         if(filmes == null)
             return NoContent();
         
-        return Ok(filmes);
+        var filmesDTO = filmes.ToFilmeDTOList();
+        
+        return Ok(filmesDTO);
     }
 
     [HttpGet("FilmesRemovidos"), Authorize(Policy =  "AdminOnly")]
@@ -76,45 +80,77 @@ public class FilmeController : ControllerBase
         if(filme == null) 
             return NotFound();
         
-        return Ok(filme);
+        var filmeDTO = filme.ToFilmeDTO();
+        
+        return Ok(filmeDTO);
     }
 
     [HttpGet("titulo/{title}")]
-    public async Task<ActionResult<IEnumerable<Filme>>> GetFilmeByTitle(string title)
+    public async Task<ActionResult<IEnumerable<FilmeDTO>>> GetFilmeByTitle(string title)
     {
         var filmes = await FilmesEmCache();
+        
         var search = filmes.Where(f => f.Title.ToLower().Contains(title.ToLower()))
             .ToList().OrderBy(f => f.Id);
+        
         if(!search.Any())
             return NoContent();
-        return Ok(search);
+
+        var filmeDTO = search.ToFilmeDTOList();
+        
+        return Ok(filmeDTO);
     }
 
     [HttpPost, Authorize(Policy = "AdminOnly")]
-    public async Task<ActionResult<Filme>> PostFilme([FromBody]Filme filme)
+    public async Task<ActionResult<FilmeDTO>> PostFilme([FromBody]FilmeDTO filmeDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+        
+        var filme = filmeDto.ToFilme();
+        
         await _context.Filmes.AddAsync(filme);
+        
         await _context.SaveChangesAsync();
+        
         _cache.Remove("cache_Films");
-        return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
+        
+        return CreatedAtAction("GetFilme", new { id = filmeDto.Id }, filmeDto);
     }
 
     
     [HttpPost("postRange"), Authorize(Policy = "AdminOnly")]
-    public async Task<IActionResult> PostInRange(List<Filme> filmes)
+    public async Task<IActionResult> PostInRange(List<FilmeDTO> filmesDTO)
     {
+        var verify = await _context.Filmes.Select(f => f.Title).ToListAsync();
+
+        var exist = await _context.Filmes.Where(f 
+            => verify.Contains(f.Title))
+            .Select(f => f.Title)
+            .ToListAsync();
+
+        if (exist.Any())
+            return Conflict(
+                new
+                {
+                    message = $"The Film exists in Blog",
+                    status = StatusCodes.Status409Conflict
+                });
+        
+        var filmes = filmesDTO.ToFilmeList();
+        
         await _context.Filmes.AddRangeAsync(filmes);
+        
         await _context.SaveChangesAsync();
-        return  Ok();
+        
+        return Ok($"new films created with success!");
     }
 
     
     [HttpPost("restaurar/{titulo}"), Authorize(Policy = "AdminOnly")]
-    public async Task<ActionResult<Filme>> RestaurarFilme(string titulo, int? idFilme)
+    public async Task<ActionResult<FilmeDTO>> RestaurarFilme(string titulo, int? idFilme)
     {
-        if (!_cache.TryGetValue("cache_FilmsDeleted", out List<Filme>? filmesRemoved) ||
+        if (!_cache.TryGetValue("cache_FilmsDeleted", out List<FilmeDTO>? filmesRemoved) ||
             filmesRemoved == null || !filmesRemoved.Any())
             return NotFound("Não há filmes deletados na memória");
         
@@ -131,9 +167,11 @@ public class FilmeController : ControllerBase
 
             if (req == null)
                 return NotFound();
+
+            var backFilme = req.ToFilme();
             
             req.Id = 0;
-            _context.Filmes.Add(req);
+            _context.Filmes.Add(backFilme);
             await _context.SaveChangesAsync();
             
             _cache.Remove("cache_Films");
@@ -141,28 +179,30 @@ public class FilmeController : ControllerBase
             filmesRemoved.Remove(req);
             _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
             
-            return CreatedAtAction("GetFilme", new { id = req.Id }, req);
+            return Ok($"The Film {req.Title} has been added to Blog");
         }
         
-        var filme = filmesRemoved.FirstOrDefault(f => f.Title == titulo);
+        var filmeDTO = filmesRemoved.FirstOrDefault(f => f.Title == titulo);
         
-        if (filme == null)
+        if (filmeDTO == null)
             return NotFound();
         
+        var filme = filmeDTO.ToFilme();
+        
         filme.Id = 0;
-        _context.Filmes.Add(filme);
+        await _context.Filmes.AddAsync(filme);
         await _context.SaveChangesAsync();
         
         _cache.Remove("cache_Films");
         
-        filmesRemoved.Remove(filme);
+        filmesRemoved.Remove(filmeDTO);
         _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
         
-        return CreatedAtAction("GetFilme", new { id = filme.Id }, filme);
+        return Ok($"The Film {filme.Title} has been added to Blog");
     }
     
     [HttpPut("alterarTitulo/{id}"), Authorize(Policy = "AdminOnly")]
-    public async Task<ActionResult<Filme>> AlterarDadosFilme(int id, [FromBody] Filme filmeAtualizado)
+    public async Task<ActionResult<FilmeDTO>> AlterarDadosFilme(int id, [FromBody] FilmeDTO filmeAtualizado)
     {
         var res = await _context.Filmes.FindAsync(id);
         if (res == null)
@@ -174,27 +214,31 @@ public class FilmeController : ControllerBase
         res.Genre = filmeAtualizado.Genre;
         res.ImageUrl = filmeAtualizado.ImageUrl;
         res.ThumbnailUrl = filmeAtualizado.ThumbnailUrl;
-        
-        _context.SaveChangesAsync();
+
+        _context.Filmes.Update(res);
+
+        await _context.SaveChangesAsync();
         _cache.Remove("cache_Films");
-        return Ok(res);
+        return Ok($"The Title {filmeAtualizado.Title} has been updated");
     }
     
     [HttpDelete("{id:int}"), Authorize(Policy = "AdminOnly")]
-    public async Task<ActionResult<Filme>> DeletarFilme(int id)
+    public async Task<ActionResult<FilmeDTO>> DeletarFilme(int id)
     {
         var res = await _context.Filmes.FindAsync(id);
         if (res == null)
             return NotFound();
+
+        var filmeDTO = res.ToFilmeDTO();
         
-        if(!_cache.TryGetValue("cache_FilmsDeleted", out List<Filme>? filmesRemoved))
-            filmesRemoved = new List<Filme>();
-        filmesRemoved!.Add(res);
+        if(!_cache.TryGetValue("cache_FilmsDeleted", out List<FilmeDTO>? filmesRemoved))
+            filmesRemoved = new List<FilmeDTO>();
+        filmesRemoved!.Add(filmeDTO);
         _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
         
         _context.Filmes.Remove(res);
         await _context.SaveChangesAsync();
         _cache.Remove("cache_Films");
-        return Ok($"Filme {res.Title} Deletado com sucesso");
+        return Ok($"Filme {filmeDTO.Title} Deletado com sucesso");
     }
 }
