@@ -43,9 +43,9 @@ public class FilmeController : ControllerBase
         return filmes;
     }
 
-    private ActionResult<IEnumerable<Filme>> FilmesDeletados()
+    private ActionResult<IEnumerable<FilmeDTO>> FilmesDeletados()
     {
-        if (_cache.TryGetValue("cache_FilmsDeleted", out List<Filme>? removedFilms))
+        if (_cache.TryGetValue("cache_FilmsDeleted", out List<FilmeDTO>? removedFilms))
         {
             return Ok(removedFilms);
         }
@@ -67,7 +67,7 @@ public class FilmeController : ControllerBase
     }
 
     [HttpGet("FilmesRemovidos"), Authorize(Policy =  "AdminOnly")]
-    public async Task<ActionResult<IEnumerable<Filme>>> GetFilmesRemovidos()
+    public  ActionResult<IEnumerable<FilmeDTO>> GetFilmesRemovidos()
     {
         return FilmesDeletados();
     }
@@ -101,8 +101,8 @@ public class FilmeController : ControllerBase
         return Ok(filmeDTO);
     }
 
-    [HttpPost, Authorize(Policy = "AdminOnly")]
-    public async Task<ActionResult<FilmeDTO>> PostFilme([FromBody]FilmeDTO filmeDto)
+    [HttpPost("CreateFilm"),Route("/Create"), Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<FilmeDTO>> CreateFilme([FromBody]FilmeDTO filmeDto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -114,12 +114,14 @@ public class FilmeController : ControllerBase
         await _context.SaveChangesAsync();
         
         _cache.Remove("cache_Films");
-        
-        return CreatedAtAction("GetFilme", new { id = filmeDto.Id }, filmeDto);
+
+        var created = filme.ToFilmeDTO();
+
+        return Created($"api/Filme/{created.Id}", created);
     }
 
     
-    [HttpPost("postRange"), Authorize(Policy = "AdminOnly")]
+    [HttpPost("CreateFilms"),Route("/CreateFilms"), Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> PostInRange(List<FilmeDTO> filmesDTO)
     {
         var verify = await _context.Filmes.Select(f => f.Title).ToListAsync();
@@ -143,11 +145,11 @@ public class FilmeController : ControllerBase
         
         await _context.SaveChangesAsync();
         
-        return Ok($"new films created with success!");
+        return Created();
     }
 
     
-    [HttpPost("restaurar/{titulo}"), Authorize(Policy = "AdminOnly")]
+    [HttpPost("Restaurar/{titulo}"),Route("/RestaurarFilme"), Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<FilmeDTO>> RestaurarFilme(string titulo, int? idFilme)
     {
         if (!_cache.TryGetValue("cache_FilmsDeleted", out List<FilmeDTO>? filmesRemoved) ||
@@ -170,7 +172,7 @@ public class FilmeController : ControllerBase
 
             var backFilme = req.ToFilme();
             
-            req.Id = 0;
+            backFilme.Id = 0;
             _context.Filmes.Add(backFilme);
             await _context.SaveChangesAsync();
             
@@ -179,7 +181,7 @@ public class FilmeController : ControllerBase
             filmesRemoved.Remove(req);
             _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
             
-            return Ok($"The Film {req.Title} has been added to Blog");
+            return NoContent();
         }
         
         var filmeDTO = filmesRemoved.FirstOrDefault(f => f.Title == titulo);
@@ -198,10 +200,10 @@ public class FilmeController : ControllerBase
         filmesRemoved.Remove(filmeDTO);
         _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
         
-        return Ok($"The Film {filme.Title} has been added to Blog");
+        return NoContent();
     }
     
-    [HttpPut("alterarTitulo/{id}"), Authorize(Policy = "AdminOnly")]
+    [HttpPut("Alterar/{id}"), Route("/AlterarTitulo") ,Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<FilmeDTO>> AlterarDadosFilme(int id, [FromBody] FilmeDTO filmeAtualizado)
     {
         var res = await _context.Filmes.FindAsync(id);
@@ -219,10 +221,10 @@ public class FilmeController : ControllerBase
 
         await _context.SaveChangesAsync();
         _cache.Remove("cache_Films");
-        return Ok($"The Title {filmeAtualizado.Title} has been updated");
+        return NoContent();
     }
     
-    [HttpDelete("{id:int}"), Authorize(Policy = "AdminOnly")]
+    [HttpDelete("{id:int}"),Route("/DeleteFilm") ,Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<FilmeDTO>> DeletarFilme(int id)
     {
         var res = await _context.Filmes.FindAsync(id);
