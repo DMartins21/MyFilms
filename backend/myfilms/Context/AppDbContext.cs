@@ -11,4 +11,6 @@ public class AppDbContext : IdentityDbContext<User>
     {}
 
     public DbSet<Filme> Filmes { get; set; }
+    public DbSet<Client> Clients  { get; set; }
+    public DbSet<BlogPost>  BlogPosts { get; set; }
 }
