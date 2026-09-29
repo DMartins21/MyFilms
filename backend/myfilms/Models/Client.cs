@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace myfilms.Models;
 
@@ -12,8 +13,11 @@ public class Client
     public string ProfilePictureUrl { get; set; }
     [Required(ErrorMessage = "BirthDate is required")]
     public DateOnly BirthDate { get; set; }
+    
+    [JsonIgnore]
     public string UserId { get; set; }
-    public User User { get; set; }
-    public ICollection<Filme> FavoriteFilmes { get; set; }
-    public ICollection<BlogPost> Posts { get; set; }
+    [JsonIgnore]
+    public virtual User User { get; set; }
+    public virtual ICollection<Filme> FavoriteFilmes { get; set; }
+    public virtual ICollection<BlogPost> Posts { get; set; }
 }
