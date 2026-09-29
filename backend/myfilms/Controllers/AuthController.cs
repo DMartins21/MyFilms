@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client.NativeInterop;
 using myfilms.DTOs;
 using myfilms.Models;
 using myfilms.Services;
@@ -46,7 +45,7 @@ public class AuthController : ControllerBase
             {
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim("id", user.UserName!),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
             
@@ -93,7 +92,7 @@ public class AuthController : ControllerBase
             SecurityStamp = Guid.NewGuid().ToString(),
             UserName = registerModel.UserName,
         };
-
+        
         var result = await _userManager.CreateAsync(newUser, registerModel.Password!);
 
         if (!result.Succeeded)
@@ -104,6 +103,7 @@ public class AuthController : ControllerBase
         
         await _userManager.AddToRoleAsync(newUser, "User");
 
+        
         return Ok(new Response()
         {
             Status = "Success",

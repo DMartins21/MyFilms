@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,40 +26,40 @@ public class ClientController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult> MyUser(string username)
+    public async Task<ActionResult> MyUser()
     {
-        var userExist = await _context.Clients.Where(c => c.User.UserName == username).FirstOrDefaultAsync();
-        if (userExist == null)
-            return NotFound();
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         
-        var clientDto = userExist.ToClientDTO();
+        if (user == null)
+            return Unauthorized();
+
+        var dbClient = await _context.Clients
+            .FirstOrDefaultAsync(c => c.UserId == user);
+        
+        var clientDto = dbClient.ToClientDTO();
         
         return Ok(clientDto);
     }
 
     [HttpPost]
-    public async Task<IActionResult> NewClient(ClientDTO client, string userName)
+    public async Task<IActionResult> NewClient(ClientDTO client)
     {
-        var user = await _userManager.FindByNameAsync(userName);
-        if (user is null)
-            return NotFound();
+        var userId = User
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;
         
-        var exist = await _context.Clients.Where(c => c.UserId == user.Id).FirstOrDefaultAsync();
+        if (userId is null)
+            return Unauthorized();
+
+        var exist = await _context.Clients
+            .AnyAsync(c => c.UserId == userId);
         
-        if(exist != null)
-            return Conflict(new {message = "user already exists", Status = StatusCodes.Status409Conflict});
+        if(exist)
+            return Conflict(new 
+                {message = "user already exists",
+                    Status = StatusCodes.Status409Conflict });
 
         var newClient = client.ToClient();
-        newClient.UserId = user.Id;
-        
-        // var newClient = new Client()
-        // {
-        //     Name = client.Name,
-        //     LastName = client.LastName,
-        //     ProfilePictureUrl = client.ProfilePictureUrl,
-        //     BirthDate = client.BirthDate,
-        //     UserId = user.Id
-        // };
+        newClient.UserId = userId;
         
         await _context.Clients.AddAsync(newClient);
         await _context.SaveChangesAsync();
@@ -68,66 +69,77 @@ public class ClientController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<IActionResult> ModifiedClient(ClientDTO clientDto, string name)
+    public async Task<IActionResult> ModifiedClient(ClientDTO clientDto)
     {
-        var clientExist = await _context.Clients.Where(c => c.Name  == name).FirstOrDefaultAsync();
+        var userId = User
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (clientExist == null)
+        if (userId == null)
+            return  Unauthorized();
+        
+        var user = await _context.Clients
+            .FindAsync(userId);
+
+        if (user == null)
             return NotFound();
 
-        clientExist.Name = clientDto.Name;
-        clientExist.LastName = clientDto.LastName;
-        clientExist.ProfilePictureUrl = clientDto.ProfilePictureUrl;
-        clientExist.BirthDate = clientExist.BirthDate;
+        user.Name = clientDto.Name;
+        user.LastName = clientDto.LastName;
+        user.ProfilePictureUrl = clientDto.ProfilePictureUrl;
+        user.BirthDate = clientDto.BirthDate;
         
         await _context.SaveChangesAsync();
 
-        var client = clientExist.ToClientDTO();
+        var client = user.ToClientDTO();
         
-        return Ok($"The Client {name} has been modified succesfully to {client.Name}");
+        return Ok($"The Client {client.Name} has been modified succesfully");
     }
 
     [HttpPost]
-    public async Task<IActionResult> FavoritarFilme(int idClien, int idFilme)
-    {
-        try
-        {
-            var userExist = await _context.Clients
-                .Include(c => c.FavoriteFilmes)
-                .FirstOrDefaultAsync(c => c.Id == idClien);
+    public async Task<IActionResult> FavoritarFilme(int idFilme)
+    { 
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userExist == null)
-                return NotFound();
-
-            var filme = await _context.Filmes.FindAsync(idFilme);
-
-            if (filme == null)
-                return NotFound();
-
-            var isDuplicated = await _context.Clients.AnyAsync(c=> c.Id == idClien && c.FavoriteFilmes.Any(f => f.Id == idFilme));
-
-            if (isDuplicated)
-                return Conflict(new {message = "Filme exist in favorite list", Status = StatusCodes.Status409Conflict});
+        if (user == null) 
+            return Unauthorized();
             
-            userExist.FavoriteFilmes.Add(filme);
+        var client = await _context.Clients
+            .Include(c => c.FavoriteFilmes)
+            .FirstOrDefaultAsync(c => c.UserId == user);
             
-            await _context.SaveChangesAsync();
 
-            return Ok();
-        }catch(Exception e)
-        {
-            return BadRequest(e.Message);
-        }
+        var filme = await _context.Filmes.FindAsync(idFilme);
+
+        if (filme == null) 
+            return NotFound();
+            
+        if (client.FavoriteFilmes.Any(f=> f.Id == idFilme)) 
+            return Conflict(new 
+            {message = "Filme exist in favorite list", 
+                Status = StatusCodes.Status409Conflict});
+        
+        client.FavoriteFilmes.Add(filme);
+            
+        await _context.SaveChangesAsync();
+
+        return Ok($"The Film {filme.Title} has been added to favorite list");
     }
 
     [HttpGet]
-    public async Task<IActionResult> MyFavorites(int id)
+    public async Task<IActionResult> MyFavorites()
     {
-        var user = await _context.Clients.FindAsync(id);
-        if (user == null)
-            return NotFound();
-        var favs = await _context.Clients.Include(c => c.FavoriteFilmes).Where(c => c.Id == id).ToListAsync();
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         
-        return Ok(favs);
+        if (user == null)
+            return Unauthorized();
+
+        var favs = await _context.Clients
+            .Include(c => c.FavoriteFilmes)
+            .Where(c => c.UserId == user)
+            .FirstOrDefaultAsync();
+
+        var filmes = favs.FavoriteFilmes.ToFilmeDTOList();
+        
+        return Ok(filmes);
     }
 }
