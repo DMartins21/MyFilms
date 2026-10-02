@@ -101,7 +101,9 @@ public class FilmeController : ControllerBase
         return Ok(filmeDTO);
     }
 
-    [HttpPost("CreateFilm"),Route("/Create"), Authorize(Policy = "AdminOnly")]
+    [HttpPost("CreateFilm"),
+     Route("/Create"), 
+     Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<FilmeDTO>> CreateFilme([FromBody]FilmeDTO filmeDto)
     {
         if (!ModelState.IsValid)
