@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Api from '../../services/loginApi';
 import { toast } from 'react-toastify';
 import './css/loginStyle.css';

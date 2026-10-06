@@ -1,11 +1,23 @@
 import { Link } from 'react-router-dom'
 import Search from '../Search/index'
+import './css/styleHeader.css'
+
+
+function isTokenExpired(token){
+        if(!token){
+            return true
+        }
+        if(Date.now() > new Date(token).getTime()){
+            return true
+        }
+        return false
+    }
 
 function Header()
 {
     const user = sessionStorage.getItem('user')
     const tokenEx = sessionStorage.getItem('expirationToken')
-
+    
     return (
         <div>
             <header>
@@ -14,7 +26,7 @@ function Header()
                 <Link to="/">Home</Link>
                 <Link to="/filmes" >Todos os Filmes</Link>
                 
-                {!user || Date.now() > new Date(tokenEx).getTime()  ?
+                {!user || isTokenExpired(tokenEx)  ?
                     (
                         <>
                         <Link to="/login" >Login</Link>
@@ -22,6 +34,7 @@ function Header()
                     ) : (
                      <>
                        <Link to='/filmes/favFilms'>Meus Favoritos</Link>
+                       <Link to='/logout'>Logout</Link>
                      </>       
                     )
                 }                
