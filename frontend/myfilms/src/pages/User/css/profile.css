@@ -1,0 +1,85 @@
+/* Foto | Dados | Nascimento, lado a lado */
+.info-user {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2.5rem 1rem;
+}
+
+.info-user .profile-picture {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e50914;
+    background-color: #0d0d0d;
+    box-shadow: 0 0 0 6px rgba(229, 9, 20, 0.12);
+}
+
+/* Os dois cartões: não dependem de classes extras no <article> */
+.info-user article {
+    background-color: #141414;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    min-width: 0;
+}
+
+.info-user article:nth-of-type(1) {
+    flex: 2; /* Meus Dados: mais largo */
+}
+
+.info-user article:nth-of-type(2) {
+    flex: 1; /* Nascimento */
+}
+
+.info-user .title {
+    color: #e50914;
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.info-user .data-list {
+    margin: 0;
+    display: grid;
+    gap: 1rem;
+}
+
+.info-user .data-item dt {
+    color: #b3b3b3;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.info-user .data-item dd {
+    margin: 0;
+    color: #e0e0e0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+/* telas menores: empilha tudo */
+@media (max-width: 800px) {
+    .info-user {
+        flex-direction: column;
+    }
+
+    .info-user article:nth-of-type(1),
+    .info-user article:nth-of-type(2) {
+        flex: none;
+    }
+}

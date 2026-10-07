@@ -13,8 +13,15 @@ function Logout() {
             sessionStorage.removeItem("tokenSession")
             sessionStorage.removeItem("refreshToken")
             sessionStorage.removeItem("expirationToken")
+            
             navigate('/')
+            
             toast.success("Logout Efetuado com Sucesso")
+
+            setTimeout(() => {
+                window.location.reload()
+            }, 3000);
+
             }
             catch (e) {
             console.error('Um erro ocorreu:', e)

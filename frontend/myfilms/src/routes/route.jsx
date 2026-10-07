@@ -4,6 +4,8 @@ import FavFilms from '../pages/Filmes/favFilms.jsx'
 import Login from '../pages/Login/login.jsx'
 import SubmitFilm from '../pages/Filmes/submitFilm.jsx'
 import Register from '../pages/Login/register.jsx'
+import MyUser from '../pages/User/myUser.jsx'
+import CreateUser from '../pages/User/createUser.jsx'
 import Details from '../pages/Filmes/details.jsx'
 import Logout from '../pages/Login/logout.jsx'
 import Error from '../pages/Error/index.jsx'
@@ -46,6 +48,8 @@ function RoutesApp()
                         <Route path="/login" element={<Navigate to="/" />} />
                         <Route path='/register' element={<Navigate to="/" />} />
                         <Route path='/filmes/favFilms' element={<FavFilms />} />
+                        <Route path='/client/myUser' element={<MyUser />} />
+                        <Route path="/client/createUser" element={<CreateUser />} />
                         <Route path='/filmes/submitFilm' element={<SubmitFilm />} />
                         <Route path='/logout' element={<Logout />} />
                         </>
