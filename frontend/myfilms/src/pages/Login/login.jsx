@@ -70,7 +70,7 @@ function Login() {
                     <h4 className="form-label">Password</h4>
                     <input type="password" placeholder="Informe sua senha" value={password} onChange={(e) => setPassword(e.target.value)} required></input>
                     <br></br>
-                    <Link to={'/register'} className="link">Criar Conta</Link>
+                    <Link to={'/register'} className="registerBtn">Criar Conta</Link>
                     <button className="form-button" type="submit">
                         Login
                     </button>

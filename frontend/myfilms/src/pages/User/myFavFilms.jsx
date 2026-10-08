@@ -1,45 +1,33 @@
-import { useState,useEffect } from "react";
-import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
-import './css/stylefav.css';
+import '../User/css/profile.css'
+import Api from '../../services/userApi';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-function FavFilms(){
-    const [favoritos, setFavoritos] = useState([])
+function MyFavFilms(){
 
-    useEffect(() =>{
+    const [favoritos, setFavoritos] = useState([]);
+
+    useEffect(() => {
         try{
-            function getFavoritos(){
-                const favs = localStorage.getItem("favoritos")
-                let filmes = JSON.parse(favs)
-                setFavoritos(filmes || [])
+            async function getFavFilms()
+            {
+                const data = await Api('MyFavorites', {
+                    method: 'GET',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('tokenSession')}`
+                    }
+                });
+                setFavoritos(data)
             }
 
-            getFavoritos()
-
+            getFavFilms();
         }catch(e){
-            console.log(e)
+            console.error(e)
         }
-    }, [])
+    }, [setFavoritos])
 
-    function deleteFav(id){
-        
-        const myFav = JSON.parse(localStorage.getItem("favoritos"))
-        
-        let film = myFav.filter((item) => {
-            return(
-                item.id !== id
-            )
-            
-        })
-
-        setFavoritos(film)
-       
-        localStorage.setItem("favoritos", JSON.stringify(film))
-
-        toast.success("Filme Deletado dos Favoritos")
-    }
-
-    if(favoritos.length == 0)
+        if(favoritos.length == 0)
         return(
             <>
                 <div className="favs">
@@ -62,7 +50,7 @@ function FavFilms(){
                             <p>{item.description}</p>
                             <img src={item.thumbnailUrl} alt={item.title}></img>
                             <Link to={`/filmes/${item.id}`}>Detalhes</Link>
-                            <button onClick={() => deleteFav(item.id)}>Excluir da Lista</button>
+                            {/* <button onClick={() => deleteFav(item.id)}>Excluir da Lista</button> */}
                         </li>
                     </ul>
                 </div>
@@ -71,6 +59,8 @@ function FavFilms(){
         </div>
         </>
     )
+
 }
 
-export default FavFilms
+
+export default MyFavFilms;

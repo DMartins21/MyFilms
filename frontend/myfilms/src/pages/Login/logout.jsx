@@ -13,14 +13,12 @@ function Logout() {
             sessionStorage.removeItem("tokenSession")
             sessionStorage.removeItem("refreshToken")
             sessionStorage.removeItem("expirationToken")
-            
-            navigate('/')
-            
-            toast.success("Logout Efetuado com Sucesso")
+                        
+            toast.success("Logout Efetuado com Sucesso", {toastId: 'logout'})
 
             setTimeout(() => {
                 window.location.reload()
-            }, 3000);
+            }, 5000);
 
             }
             catch (e) {
@@ -32,7 +30,8 @@ function Logout() {
 
     useEffect(() => {
         logoutUser()
-    }, [])
+        navigate('/')
+    },[navigate])
 
 }
 export default Logout;

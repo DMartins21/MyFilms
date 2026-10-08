@@ -5,7 +5,6 @@ import './css/styleDetails.css'
 import { toast } from 'react-toastify'
 import Api from '../../services/filmesApi'
 
-// const url = 'http://localhost:5290/api/Filme/Titulo'
 
 function Details()
 {
@@ -47,6 +46,7 @@ function Details()
         localStorage.setItem("favoritos", JSON.stringify(favFilms))
         toast.success("Filme Adicionado com Sucesso")
     }
+
     return(
         <>
             <div className="filme-detalhes-container" style={{ backgroundImage: `url(${filme.imageUrl})` }}>

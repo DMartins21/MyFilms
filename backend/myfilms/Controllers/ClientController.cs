@@ -1,12 +1,14 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using myfilms.Context;
 using myfilms.DTOs;
 using myfilms.DTOs.Mappings;
 using myfilms.Models;
+
 
 namespace myfilms.Controllers;
 
@@ -78,7 +80,7 @@ public class ClientController : ControllerBase
             return  Unauthorized();
         
         var user = await _context.Clients
-            .FindAsync(userId);
+            .FirstOrDefaultAsync(c => c.UserId == userId);
 
         if (user == null)
             return NotFound();
@@ -92,7 +94,35 @@ public class ClientController : ControllerBase
 
         var client = user.ToClientDTO();
         
-        return Ok($"The Client {client.Name} has been modified succesfully");
+        return Ok(new {message = "The Client {client.Name} has been modified succesfully"});
+    }
+
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> ModfiedClient(int id, [FromBody] JsonPatchDocument<ClientDTO> pathDoc)
+    {
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var exist = await _context.Clients
+            .AnyAsync(c => c.UserId == user);
+
+        if (user == null || !exist)
+            return Unauthorized();
+
+        var client = await _context.Clients.FindAsync(id);
+        if (client == null)
+            return NotFound();
+
+        var clientUpdate = client.ToClientDTO();
+
+        if (pathDoc != null && pathDoc.Operations != null)
+            pathDoc.ApplyTo(clientUpdate, ModelState);
+        
+        if (!ModelState.IsValid || !TryValidateModel(clientUpdate))
+            return ValidationProblem(ModelState);
+        
+        
+        await _context.SaveChangesAsync();
+        
+        return Ok();
     }
 
     [HttpPost]
@@ -101,6 +131,12 @@ public class ClientController : ControllerBase
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (user == null) 
+            return Unauthorized();
+
+        var exist = await _context.Clients
+            .AnyAsync(c => c.UserId == user);
+        
+        if (!exist)
             return Unauthorized();
             
         var client = await _context.Clients
@@ -133,6 +169,12 @@ public class ClientController : ControllerBase
         if (user == null)
             return Unauthorized();
 
+        var exist = await _context.Clients
+            .AnyAsync(c => c.UserId == user);
+        
+        if(!exist)
+            return Unauthorized();
+        
         var favs = await _context.Clients
             .Include(c => c.FavoriteFilmes)
             .Where(c => c.UserId == user)

@@ -1,6 +1,7 @@
 import '../User/css/profile.css'
 import Api from '../../services/userApi';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function MyUser(){
 
@@ -57,6 +58,8 @@ function MyUser(){
                         </div>
                     </dl>
                 </article>
+
+                <Link className="link" to={'/client/modify'}>Alterar Dados</Link>
 
             </section>
         </>

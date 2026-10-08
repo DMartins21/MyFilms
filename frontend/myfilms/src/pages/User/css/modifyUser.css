@@ -1,0 +1,91 @@
+.modifyUser {
+    display: flex;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+}
+
+.formUser {
+    width: 100%;
+    max-width: 520px;
+    background-color: #141414;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.formUser h2 {
+    color: #e50914;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-align: center;
+    margin: 0 0 1rem;
+}
+
+.formUser label {
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.6rem;
+}
+
+.formUser input {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #0d0d0d;
+    color: #e0e0e0;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 0.7rem 0.8rem;
+    font: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.formUser input::placeholder {
+    color: #6b6b6b;
+}
+
+.formUser input:focus {
+    outline: none;
+    border-color: #e50914;
+    box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+}
+
+/* ícone do calendário visível no tema escuro */
+.formUser input[type="date"] {
+    color-scheme: dark;
+}
+
+.formUser .btn-submit {
+    margin-top: 1.25rem;
+    background-color: #e50914;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+}
+
+
+.formUser .btn-submit:hover {
+    background-color: #b8070f;
+}
+
+.formUser .btn-submit:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+    .formUser {
+        padding: 1.5rem 1.2rem;
+    }
+}
