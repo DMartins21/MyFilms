@@ -3,6 +3,7 @@ import {useParams, Link} from 'react-router-dom'
 import Error from '../Error'
 import './css/styleDetails.css'
 import { toast } from 'react-toastify'
+import UserApi from '../../services/userApi'
 import Api from '../../services/filmesApi'
 
 
@@ -31,20 +32,19 @@ function Details()
         <>
             <Error />
         </>)
-    function handleFav(){
-        const listaFav = localStorage.getItem("favoritos")
-
-        let favFilms = JSON.parse(listaFav) || []
-
-        const hasFilm = favFilms.some((favFilms) => favFilms.id === filme.id)
-        if(hasFilm){
-            toast.warn("Filme já está na Lista de Favoritos")
-            return
+    async function handleFav(){
+        try{
+            await UserApi(`favoritarFilme?idFilme=${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('tokenSession')}`
+                }
+            })
+            toast.success('Filme Favoritado!')
+        }catch{
+            toast.info('Filme Já estava nos favoritos')
         }
-        
-        favFilms.push(filme)
-        localStorage.setItem("favoritos", JSON.stringify(favFilms))
-        toast.success("Filme Adicionado com Sucesso")
     }
 
     return(

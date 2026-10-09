@@ -1,8 +1,9 @@
-/* Foto | Dados | Nascimento, lado a lado */
+/* Linha 1: Foto | Dados | Nascimento
+   Linha 2: botão "Alterar Dados" centralizado */
 .info-user {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 2fr 1fr;
     align-items: stretch;
-    justify-content: center;
     gap: 2rem;
     max-width: 1000px;
     margin: 0 auto;
@@ -10,7 +11,6 @@
 }
 
 .info-user .profile-picture {
-    flex: 0 0 auto;
     align-self: center;
     width: 160px;
     height: 160px;
@@ -29,14 +29,6 @@
     padding: 1.75rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     min-width: 0;
-}
-
-.info-user article:nth-of-type(1) {
-    flex: 2; /* Meus Dados: mais largo */
-}
-
-.info-user article:nth-of-type(2) {
-    flex: 1; /* Nascimento */
 }
 
 .info-user .title {
@@ -69,31 +61,45 @@
     color: #e0e0e0;
     font-size: 1.1rem;
     font-weight: 600;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
 }
 
-.link {
-    margin-top: 12rem;
+/* a data nunca quebra no meio */
+.info-user .birthdate-info {
+    white-space: nowrap;
+}
+
+/* Botão "Alterar Dados": ocupa a linha de baixo, centralizado */
+.info-user .link {
+    grid-column: 1 / -1;
+    justify-self: center;
     background-color: #e50914;
     color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 0.8rem 1rem;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
-    cursor: pointer;
+    padding: 0.75rem 1.6rem;
+    border-radius: 6px;
+    text-decoration: none;
     transition: background-color 0.25s ease;
+}
 
+.info-user .link:hover {
+    background-color: #b8070f;
+}
+
+.info-user .link:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
 }
 
 /* telas menores: empilha tudo */
 @media (max-width: 800px) {
     .info-user {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        justify-items: stretch;
     }
 
-    .info-user article:nth-of-type(1),
-    .info-user article:nth-of-type(2) {
-        flex: none;
+    .info-user .profile-picture {
+        justify-self: center;
     }
 }

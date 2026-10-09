@@ -31,9 +31,9 @@ function NavBar(){
                     </>
                 ) : (
                      <>
-                       <NavLink to='/filmes/favFilms'>Meus Favoritos</NavLink>
-                       <NavLink to='/logout'>Logout</NavLink>
-                       <NavLink to='/client/myUser'>Meu Usuário</NavLink>
+                       <NavLink to='/user/favs'>Meus Favoritos</NavLink>
+                       <NavLink to='/user/myUser'>Meu Usuário</NavLink>
+                        <NavLink to='/logout'>Logout</NavLink>
                      </>       
                     )
             }                

@@ -59,7 +59,7 @@ function MyUser(){
                     </dl>
                 </article>
 
-                <Link className="link" to={'/client/modify'}>Alterar Dados</Link>
+                <Link className="link" to={'/user/modify'}>Alterar Dados</Link>
 
             </section>
         </>

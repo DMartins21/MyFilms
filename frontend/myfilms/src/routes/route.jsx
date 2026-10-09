@@ -1,6 +1,5 @@
 import {Route, BrowserRouter, Routes, Navigate} from 'react-router-dom'
 import Filmes from '../pages/Filmes/index.jsx'
-import FavFilms from '../pages/Filmes/favFilms.jsx'
 import Login from '../pages/Login/login.jsx'
 import SubmitFilm from '../pages/Filmes/submitFilm.jsx'
 import Register from '../pages/Login/register.jsx'
@@ -43,17 +42,16 @@ function RoutesApp()
                         <>  
                             <Route path="/login" element={< Login />}  />
                             <Route path='/register' element={< Register />} />
-                             <Route path='/filmes/favFilms' element={< Navigate to="/login" />} />
+                             <Route path='/user/favs' element={< Navigate to="/login" />} />
                         </>
                     ) : (
                         <>
                         <Route path="/login" element={< Navigate to="/" />} />
                         <Route path='/register' element={< Navigate to="/" />} />
-                        <Route path='/filmes/favFilms' element={< FavFilms />} />
-                        <Route path='/client/favs' element={< MyFavFilms />} />
-                        <Route path='/client/myUser' element={< MyUser />} />
-                        <Route path="/client/createUser" element={< CreateUser />} />
-                        <Route path='/client/modify' element={< ModifyUser />} />
+                        <Route path='/user/favs' element={< MyFavFilms />} />
+                        <Route path='/user/myUser' element={< MyUser />} />
+                        <Route path="/user/createUser" element={< CreateUser />} />
+                        <Route path='/user/modify' element={< ModifyUser />} />
                         <Route path='/filmes/submitFilm' element={< SubmitFilm />} />
                         <Route path='/logout' element={< Logout />} />
                         </>

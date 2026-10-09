@@ -15,6 +15,17 @@ async function UserApi(endpoint = '', options = {}) {
             throw new Error(response.statusText);
         }
 
+        if(response.status === 204){
+            const text = response.text()
+            
+            if(!text) return null
+            
+            try{
+                JSON.parse(text)
+            }catch{
+                return text
+            }
+        }
         const data = await response.json();
 
         return data;

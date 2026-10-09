@@ -19,12 +19,10 @@ Authorize]
 public class ClientController : ControllerBase
 {
     private readonly AppDbContext _context;
-    private readonly UserManager<User> _userManager;
     
     public ClientController(AppDbContext context,  UserManager<User> userManager)
     {
         _context = context;
-        _userManager = userManager;
     }
 
     [HttpGet]
@@ -94,7 +92,7 @@ public class ClientController : ControllerBase
 
         var client = user.ToClientDTO();
         
-        return Ok(new {message = "The Client {client.Name} has been modified succesfully"});
+        return Ok(new {message = $"The Client {client.Name} has been modified succesfully"});
     }
 
     [HttpPatch("{id}")]
@@ -158,7 +156,7 @@ public class ClientController : ControllerBase
             
         await _context.SaveChangesAsync();
 
-        return Ok($"The Film {filme.Title} has been added to favorite list");
+        return Ok(new { message = $"The Film {filme.Title} has been added to favorite list" });
     }
 
     [HttpGet]
@@ -179,9 +177,36 @@ public class ClientController : ControllerBase
             .Include(c => c.FavoriteFilmes)
             .Where(c => c.UserId == user)
             .FirstOrDefaultAsync();
-
+        if (!favs.FavoriteFilmes.Any())
+            return NoContent();
         var filmes = favs.FavoriteFilmes.ToFilmeDTOList();
         
         return Ok(filmes);
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> RemoveFilm(int idFilme)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+            return Unauthorized();
+
+        var client = await _context.Clients
+            .Include(c => c.FavoriteFilmes)
+            .FirstOrDefaultAsync(c => c.UserId == userId);
+        
+        if (client == null)
+            return NotFound();
+
+        var filme = client.FavoriteFilmes
+            .FirstOrDefault(f => f.Id == idFilme);
+        if (filme == null)
+            return NotFound(new {message = "Filme Not Found"});
+        
+        
+        client.FavoriteFilmes.Remove(filme);
+        await _context.SaveChangesAsync();
+        
+        return NoContent();
     }
 }

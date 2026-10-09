@@ -1,142 +1,165 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600;700&display=swap');
 
-:root {
-    --login-bg: #F5F1EA;
-    --login-text: #1C1A17;
-    --login-text-muted: #6B655C;
-    --login-accent: #B8863F;
-    --login-accent-dim: #96692D;
-    --login-field-border: #D8D2C6;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-html, body, #root {
-    min-height: 100%;
-}
-
-body {
-    margin: 0;
-    background: var(--login-bg);
-    font-family: 'Inter', sans-serif;
-}
-
-.error-banner {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: #d32f2f;
-    color: white;
-    text-align: center;
-    padding: 12px 16px;
-    font-size: 0.95rem;
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-}
-
-.error-banner-close {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.2rem;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.registerBtn {
-    font-family: 'Inter', sans-serif;
-    color: #1C1A17;
-    display: flex;
-    align-items: center;
-}
+/* Login e Register: mesmo tema escuro do resto do site.
+   Sem regras globais (*, body, :root), para não afetar as outras páginas. */
 
 .login-page {
-    min-height: calc(100vh - 190px);
-    background: var(--login-bg);
     display: flex;
     align-items: center;
     justify-content: center;
+    min-height: calc(100vh - 190px);
+    padding: 2.5rem 1rem;
 }
 
 .login-container {
     width: 100%;
-    max-width: 320px;
-    padding: 2rem 1.5rem;
+    max-width: 400px;
     display: flex;
-    height: calc(100vh - 190px);
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: stretch;
+    background-color: #141414;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    font-family: 'Inter', sans-serif;
 }
 
 .form-title {
     font-family: 'Cormorant Garamond', serif;
-    font-weight: 600;
+    color: #e50914;
     font-size: 2.25rem;
-    color: var(--login-text);
-    margin: 0 0 2.5rem;
+    font-weight: 600;
     letter-spacing: 0.01em;
+    text-align: center;
+    margin: 0 0 1.75rem;
 }
 
 .form-label {
-    align-self: flex-start;
     font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 0.8rem;
-    color: var(--login-text-muted);
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    font-weight: 600;
     margin: 0 0 0.4rem;
 }
 
 .login-container input {
     width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--login-field-border);
-    color: var(--login-text);
+    background-color: #0d0d0d;
+    color: #e0e0e0;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 0.7rem 0.8rem;
+    margin-bottom: 1.1rem;
     font-family: 'Inter', sans-serif;
     font-size: 0.95rem;
-    padding: 0.5rem 0.1rem;
-    margin-bottom: 1.5rem;
-    outline: none;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .login-container input::placeholder {
-    color: var(--login-text-muted);
-    opacity: 0.6;
+    color: #6b6b6b;
 }
 
 .login-container input:focus {
-    border-bottom-color: var(--login-accent);
+    outline: none;
+    border-color: #e50914;
+    box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+}
+
+.login-container input[type="date"] {
+    color-scheme: dark;
 }
 
 .form-button {
     width: 100%;
     margin-top: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: var(--login-accent);
-    color: #FFFFFF;
+    padding: 0.8rem 1rem;
+    background-color: #e50914;
+    color: #fff;
     border: none;
-    border-radius: 2px;
+    border-radius: 6px;
     font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 1rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background-color 0.25s ease;
 }
 
 .form-button:hover {
-    background: var(--login-accent-dim);
+    background-color: #b8070f;
 }
 
-.form-button:focus-visible,
-.login-container input:focus-visible {
-    outline: 2px solid var(--login-accent);
+.form-button:focus-visible {
+    outline: 2px solid #fff;
     outline-offset: 2px;
+}
+
+/* "Não tem conta? Cadastre-se" */
+.registerBtn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1.25rem;
+    font-family: 'Inter', sans-serif;
+    color: #b3b3b3;
+    font-size: 0.9rem;
+}
+
+.registerBtn a {
+    color: #e0e0e0;
+    font-weight: 600;
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    transition: color 0.25s ease, background-color 0.25s ease;
+}
+
+.registerBtn a:hover {
+    color: #e50914;
+    background-color: rgba(229, 9, 20, 0.1);
+}
+
+/* Aviso de erro no topo */
+.error-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background-color: #b8070f;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.error-banner-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+}
+
+.error-banner-close:hover {
+    opacity: 1;
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        padding: 1.5rem 1.2rem;
+    }
+
+    .form-title {
+        font-size: 1.9rem;
+    }
 }

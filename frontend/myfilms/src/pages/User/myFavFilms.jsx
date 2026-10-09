@@ -1,11 +1,13 @@
-import '../User/css/profile.css'
+import '../User/css/stylefav.css'
 import Api from '../../services/userApi';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 function MyFavFilms(){
 
     const [favoritos, setFavoritos] = useState([]);
+    const navigate = useNavigate()
 
     useEffect(() => {
         try{
@@ -27,6 +29,21 @@ function MyFavFilms(){
         }
     }, [setFavoritos])
 
+    async function deleteFav(id){
+        try{
+            await Api(`removeFilm?idFilme=${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('tokenSession')}`
+                }
+            })
+            toast.info(`Film has been removed`)
+            navigate('/user/myUser')
+        }catch(e){
+            console.error(e)
+        }
+    }
         if(favoritos.length == 0)
         return(
             <>
@@ -50,7 +67,7 @@ function MyFavFilms(){
                             <p>{item.description}</p>
                             <img src={item.thumbnailUrl} alt={item.title}></img>
                             <Link to={`/filmes/${item.id}`}>Detalhes</Link>
-                            {/* <button onClick={() => deleteFav(item.id)}>Excluir da Lista</button> */}
+                            <button onClick={() => deleteFav(item.id)}>Excluir da Lista</button>
                         </li>
                     </ul>
                 </div>
