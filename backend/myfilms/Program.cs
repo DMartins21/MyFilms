@@ -10,6 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using myfilms.Context;
 using myfilms.Models;
+using myfilms.Repositories;
+using myfilms.Repositories.Interfaces;
 using myfilms.Services;
 using Scalar.AspNetCore;
 
@@ -97,6 +99,8 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IFilmeRepository, FilmeRepository>();
 
 builder.Services.AddOpenApi(options =>
 {

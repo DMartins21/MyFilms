@@ -1,0 +1,12 @@
+﻿using System.Linq.Expressions;
+using myfilms.Models;
+
+namespace myfilms.Repositories.Interfaces;
+
+public interface IFilmeRepository : IRepository<Filme>
+{
+    Task<Filme> GetByFilmIdAsync(int id);
+    Task<IEnumerable<Filme>> GetByTitleAsync(string title);
+    Task<IEnumerable<Filme>> SearchAsync(Expression<Func<Filme, bool>> predicate);
+    Task CreateRangeAsync(IEnumerable<Filme> films);
+}

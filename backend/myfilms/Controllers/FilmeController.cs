@@ -8,6 +8,7 @@ using myfilms.DTOs;
 using myfilms.Models;
 using myfilms.Context;
 using myfilms.DTOs.Mappings;
+using myfilms.Repositories.Interfaces;
 
 
 namespace myfilms.Controllers;
@@ -17,23 +18,22 @@ namespace myfilms.Controllers;
 [Route("api/[controller]")]
 public class FilmeController : ControllerBase
 {
-    private readonly AppDbContext _context;
     private readonly IMemoryCache _cache;
-    
+    private IUnityOfWork _ofWork;
 
-    public FilmeController(AppDbContext context, IMemoryCache cache)
+    public FilmeController(IUnityOfWork uof, IMemoryCache cache)
     {
-        _context = context;
+        _ofWork = uof;
         _cache = cache;
     }
 
     private async Task<List<Filme>> GetFilmesInDB()
     {
-        var filmes = await _context.Filmes.ToListAsync();
+        var filmes = await _ofWork.FilmeRepository.GetAsync();
         
         _cache.Set("cache_Films", filmes, TimeSpan.FromMinutes(30));
         
-        return filmes;
+        return filmes.ToList();
     }
     
     private async Task<IEnumerable<Filme>> FilmesEmCache()
@@ -88,10 +88,7 @@ public class FilmeController : ControllerBase
     [HttpGet("titulo/{title}")]
     public async Task<ActionResult<IEnumerable<FilmeDTO>>> GetFilmeByTitle(string title)
     {
-        var filmes = await FilmesEmCache();
-        
-        var search = filmes.Where(f => f.Title.ToLower().Contains(title.ToLower()))
-            .ToList().OrderBy(f => f.Id);
+        var search = await _ofWork.FilmeRepository.GetByTitleAsync(title);
         
         if(!search.Any())
             return NoContent();
@@ -110,10 +107,9 @@ public class FilmeController : ControllerBase
             return BadRequest(ModelState);
         
         var filme = filmeDto.ToFilme();
-        
-        await _context.Filmes.AddAsync(filme);
-        
-        await _context.SaveChangesAsync();
+
+        await _ofWork.FilmeRepository.CreateAsync(filme);
+        _ofWork.CommitAsync();
         
         _cache.Remove("cache_Films");
 
@@ -126,13 +122,13 @@ public class FilmeController : ControllerBase
     [HttpPost("CreateFilms"),Route("/CreateFilms"), Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> PostInRange(List<FilmeDTO> filmesDTO)
     {
-        var verify = await _context.Filmes.Select(f => f.Title).ToListAsync();
-
-        var exist = await _context.Filmes.Where(f 
-            => verify.Contains(f.Title))
-            .Select(f => f.Title)
-            .ToListAsync();
-
+        var title = filmesDTO
+            .Select(f => f.Title.ToLower())
+            .ToList();
+        
+        var exist = await _ofWork.FilmeRepository
+            .SearchAsync(f => title.Contains(f.Title.ToLower()));
+        
         if (exist.Any())
             return Conflict(
                 new
@@ -142,10 +138,9 @@ public class FilmeController : ControllerBase
                 });
         
         var filmes = filmesDTO.ToFilmeList();
-        
-        await _context.Filmes.AddRangeAsync(filmes);
-        
-        await _context.SaveChangesAsync();
+
+        await _ofWork.FilmeRepository.CreateRangeAsync(filmes);
+        _ofWork.CommitAsync();
         
         return Created();
     }
@@ -175,8 +170,8 @@ public class FilmeController : ControllerBase
             var backFilme = req.ToFilme();
             
             backFilme.Id = 0;
-            _context.Filmes.Add(backFilme);
-            await _context.SaveChangesAsync();
+            await _ofWork.FilmeRepository.CreateAsync(backFilme);
+            _ofWork.CommitAsync();
             
             _cache.Remove("cache_Films");
             
@@ -194,8 +189,8 @@ public class FilmeController : ControllerBase
         var filme = filmeDTO.ToFilme();
         
         filme.Id = 0;
-        await _context.Filmes.AddAsync(filme);
-        await _context.SaveChangesAsync();
+        await _ofWork.FilmeRepository.CreateAsync(filme);
+        _ofWork.CommitAsync();
         
         _cache.Remove("cache_Films");
         
@@ -208,7 +203,7 @@ public class FilmeController : ControllerBase
     [HttpPut("Alterar/{id}"), Route("/AlterarTitulo") ,Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<FilmeDTO>> AlterarDadosFilme(int id, [FromBody] FilmeDTO filmeAtualizado)
     {
-        var res = await _context.Filmes.FindAsync(id);
+        var res = await _ofWork.FilmeRepository.GetByFilmIdAsync(id);
         if (res == null)
             return NotFound("Filme não encontrado");
         
@@ -219,9 +214,9 @@ public class FilmeController : ControllerBase
         res.ImageUrl = filmeAtualizado.ImageUrl;
         res.ThumbnailUrl = filmeAtualizado.ThumbnailUrl;
 
-        _context.Filmes.Update(res);
+        _ofWork.FilmeRepository.UpdateAsync(res);
+        _ofWork.CommitAsync();
 
-        await _context.SaveChangesAsync();
         _cache.Remove("cache_Films");
         return NoContent();
     }
@@ -229,7 +224,7 @@ public class FilmeController : ControllerBase
     [HttpDelete("{id:int}"),Route("/DeleteFilm") ,Authorize(Policy = "AdminOnly")]
     public async Task<ActionResult<FilmeDTO>> DeletarFilme(int id)
     {
-        var res = await _context.Filmes.FindAsync(id);
+        var res = await _ofWork.FilmeRepository.GetByFilmIdAsync(id);
         if (res == null)
             return NotFound();
 
@@ -239,9 +234,10 @@ public class FilmeController : ControllerBase
             filmesRemoved = new List<FilmeDTO>();
         filmesRemoved!.Add(filmeDTO);
         _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
+
+        await _ofWork.FilmeRepository.DeleteAsync(id);
+        _ofWork.CommitAsync();
         
-        _context.Filmes.Remove(res);
-        await _context.SaveChangesAsync();
         _cache.Remove("cache_Films");
         return Ok($"Filme {filmeDTO.Title} Deletado com sucesso");
     }
