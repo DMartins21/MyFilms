@@ -32,6 +32,17 @@ function Details()
         <>
             <Error />
         </>)
+    async function inFavList()
+    {
+        const list = JSON.parse(sessionStorage.getItem('Favorites') || [])
+        const inList = list.some(f => f.id == id)
+        if(inList)
+        {
+            toast.info('Filme já está na lista de favoritos')
+            return
+        }
+        await handleFav()
+    }
     async function handleFav(){
         try{
             await UserApi(`favoritarFilme?idFilme=${id}`, {
@@ -43,7 +54,7 @@ function Details()
             })
             toast.success('Filme Favoritado!')
         }catch{
-            toast.info('Filme Já estava nos favoritos')
+            return
         }
     }
 
@@ -71,7 +82,7 @@ function Details()
             </div>
              <Link to="/filmes" className='filme-voltar'>Voltar</Link>
              <br></br>
-             <button onClick={handleFav} className='favButton'>Favoritar</button>
+             <button onClick={inFavList} className='favButton'>Favoritar</button>
             </div>
         </div>
         </>

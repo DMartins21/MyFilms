@@ -21,6 +21,7 @@ function MyFavFilms(){
                     }
                 });
                 setFavoritos(data)
+                sessionStorage.setItem('Favorites', JSON.stringify(data))
             }
 
             getFavFilms();
@@ -38,8 +39,16 @@ function MyFavFilms(){
                     'Authorization': `Bearer ${sessionStorage.getItem('tokenSession')}`
                 }
             })
+            const list = JSON.parse(sessionStorage.getItem('Favorites'))
+            const newList = list.filter((item) => {
+                return(
+                    item !== id
+                )
+            })
+            sessionStorage.setItem('Favorites', newList)
+            
             toast.info(`Film has been removed`)
-            navigate('/user/myUser')
+            navigate('/filmes')
         }catch(e){
             console.error(e)
         }
