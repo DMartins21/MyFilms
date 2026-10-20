@@ -8,6 +8,7 @@ using myfilms.Context;
 using myfilms.DTOs;
 using myfilms.DTOs.Mappings;
 using myfilms.Models;
+using myfilms.Repositories.Interfaces;
 
 
 namespace myfilms.Controllers;
@@ -18,11 +19,11 @@ Authorize]
 
 public class ClientController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IUnityOfWork _ofWork;
     
-    public ClientController(AppDbContext context,  UserManager<User> userManager)
+    public ClientController(IUnityOfWork ofWork)
     {
-        _context = context;
+        _ofWork = ofWork;
     }
 
     [HttpGet]
@@ -33,12 +34,17 @@ public class ClientController : ControllerBase
         if (user == null)
             return Unauthorized();
 
-        var dbClient = await _context.Clients
-            .FirstOrDefaultAsync(c => c.UserId == user);
+        var searchProfile = await _ofWork.ClientRepository.MyProfileAsync(user);
+
+        if (searchProfile == null)
+            return NotFound(
+                new
+                {
+                    message = "Profile Not Found, Please create a Profile",
+                    status = StatusCodes.Status404NotFound
+                });
         
-        var clientDto = dbClient.ToClientDTO();
-        
-        return Ok(clientDto);
+        return Ok(searchProfile);
     }
 
     [HttpPost]
@@ -50,22 +56,22 @@ public class ClientController : ControllerBase
         if (userId is null)
             return Unauthorized();
 
-        var exist = await _context.Clients
-            .AnyAsync(c => c.UserId == userId);
+        var exist = await _ofWork.ClientRepository.MyUserAsync(userId);
         
-        if(exist)
+        if(exist != null)
             return Conflict(new 
-                {message = "user already exists",
-                    Status = StatusCodes.Status409Conflict });
+                {
+                    message = "Profile already exists",
+                    Status = StatusCodes.Status409Conflict 
+                });
 
         var newClient = client.ToClient();
         newClient.UserId = userId;
-        
-        await _context.Clients.AddAsync(newClient);
-        await _context.SaveChangesAsync();
+
+        _ofWork.ClientRepository.CreateAsync(newClient);
+        await _ofWork.CommitAsync();
         
         return Created();
-
     }
 
     [HttpPut]
@@ -77,38 +83,51 @@ public class ClientController : ControllerBase
         if (userId == null)
             return  Unauthorized();
         
-        var user = await _context.Clients
-            .FirstOrDefaultAsync(c => c.UserId == userId);
-
+        var user = await _ofWork.ClientRepository.MyUserAsync(userId);
         if (user == null)
-            return NotFound();
-
+            return NotFound(
+                new
+                {
+                    message = "Profile Not Found, Please create a Profile",
+                    StatusCode =  StatusCodes.Status404NotFound
+                }
+                );
+  
         user.Name = clientDto.Name;
         user.LastName = clientDto.LastName;
         user.ProfilePictureUrl = clientDto.ProfilePictureUrl;
         user.BirthDate = clientDto.BirthDate;
         
-        await _context.SaveChangesAsync();
+        await _ofWork.ClientRepository.UpdateAsync(user);
+        await _ofWork.CommitAsync();
 
         var client = user.ToClientDTO();
         
-        return Ok(new {message = $"The Client {client.Name} has been modified succesfully"});
+        return Ok(new
+        {
+            message = $"The Client {client.Name} has been modified succesfully"
+        });
     }
 
-    [HttpPatch("{id}")]
-    public async Task<IActionResult> ModfiedClient(int id, [FromBody] JsonPatchDocument<ClientDTO> pathDoc)
+    [HttpPatch]
+    public async Task<IActionResult> ModfiedClient([FromBody] JsonPatchDocument<ClientDTO> pathDoc)
     {
         var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var exist = await _context.Clients
-            .AnyAsync(c => c.UserId == user);
-
-        if (user == null || !exist)
+        if (user == null)
             return Unauthorized();
+        
+        var profile = await _ofWork.ClientRepository.MyUserAsync(user);
+        
+        if (profile == null)
+            return NotFound(
+                new
+                {
+                    message = "Profile Not Found, Please create a Profile",
+                    status = StatusCodes.Status404NotFound
+                });
 
-        var client = await _context.Clients.FindAsync(id);
-        if (client == null)
-            return NotFound();
-
+        var client = await _ofWork.ClientRepository.MyUserAsync(user);
+        
         var clientUpdate = client.ToClientDTO();
 
         if (pathDoc != null && pathDoc.Operations != null)
@@ -117,8 +136,12 @@ public class ClientController : ControllerBase
         if (!ModelState.IsValid || !TryValidateModel(clientUpdate))
             return ValidationProblem(ModelState);
         
+        client.Name = clientUpdate.Name;
+        client.ProfilePictureUrl = clientUpdate.ProfilePictureUrl;
+        client.BirthDate = clientUpdate.BirthDate;
+        client.LastName = clientUpdate.LastName;
         
-        await _context.SaveChangesAsync();
+        await _ofWork.CommitAsync();
         
         return Ok();
     }
@@ -131,32 +154,27 @@ public class ClientController : ControllerBase
         if (user == null) 
             return Unauthorized();
 
-        var exist = await _context.Clients
-            .AnyAsync(c => c.UserId == user);
-        
-        if (!exist)
-            return Unauthorized();
-            
-        var client = await _context.Clients
-            .Include(c => c.FavoriteFilmes)
-            .FirstOrDefaultAsync(c => c.UserId == user);
-            
-
-        var filme = await _context.Filmes.FindAsync(idFilme);
+        var filme = await _ofWork.FilmeRepository.GetByFilmIdAsync(idFilme);
 
         if (filme == null) 
             return NotFound();
-            
-        if (client.FavoriteFilmes.Any(f=> f.Id == idFilme)) 
-            return Conflict(new 
-            {message = "Filme exist in favorite list", 
-                Status = StatusCodes.Status409Conflict});
         
-        client.FavoriteFilmes.Add(filme);
-            
-        await _context.SaveChangesAsync();
+        var add = await _ofWork.ClientRepository.FavoriteAsync(user, filme);
+        
+        if (!add) 
+            return Conflict(new 
+            {
+                message = "Filme exist in favorite list", 
+                Status = StatusCodes.Status409Conflict
+            });
+        
+        await _ofWork.CommitAsync();
 
-        return Ok(new { message = $"The Film {filme.Title} has been added to favorite list" });
+        return Ok(
+            new
+            {
+                message = $"The Film {filme.Title} has been added to favorite list"
+            });
     }
 
     [HttpGet]
@@ -166,22 +184,15 @@ public class ClientController : ControllerBase
         
         if (user == null)
             return Unauthorized();
+        
+        var clientFavs = await _ofWork.ClientRepository.GetFavsAsync(user);        
 
-        var exist = await _context.Clients
-            .AnyAsync(c => c.UserId == user);
-        
-        if(!exist)
-            return Unauthorized();
-        
-        var favs = await _context.Clients
-            .Include(c => c.FavoriteFilmes)
-            .Where(c => c.UserId == user)
-            .FirstOrDefaultAsync();
-        if (!favs.FavoriteFilmes.Any())
+        if (clientFavs == null)
             return NoContent();
-        var filmes = favs.FavoriteFilmes.ToFilmeDTOList();
         
-        return Ok(filmes);
+        var favs = clientFavs.FavoriteFilmes.ToFilmeDTOList();
+        
+        return Ok(favs);
     }
 
     [HttpDelete]
@@ -190,22 +201,16 @@ public class ClientController : ControllerBase
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userId == null)
             return Unauthorized();
-
-        var client = await _context.Clients
-            .Include(c => c.FavoriteFilmes)
-            .FirstOrDefaultAsync(c => c.UserId == userId);
         
-        if (client == null)
-            return NotFound();
-
-        var filme = client.FavoriteFilmes
-            .FirstOrDefault(f => f.Id == idFilme);
-        if (filme == null)
-            return NotFound(new {message = "Filme Not Found"});
+        if (!await _ofWork.ClientRepository.UnfavoriteAsync(userId, idFilme))
+            return NotFound(
+                new
+                {
+                    message = "Your List is Empty or The Film not exist in favorite list",
+                    Status = StatusCodes.Status404NotFound
+                });
         
-        
-        client.FavoriteFilmes.Remove(filme);
-        await _context.SaveChangesAsync();
+        await _ofWork.CommitAsync();
         
         return NoContent();
     }

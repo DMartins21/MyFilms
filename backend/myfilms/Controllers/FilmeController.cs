@@ -109,7 +109,7 @@ public class FilmeController : ControllerBase
         var filme = filmeDto.ToFilme();
 
         await _ofWork.FilmeRepository.CreateAsync(filme);
-        _ofWork.CommitAsync();
+        await _ofWork.CommitAsync();
         
         _cache.Remove("cache_Films");
 
@@ -140,7 +140,7 @@ public class FilmeController : ControllerBase
         var filmes = filmesDTO.ToFilmeList();
 
         await _ofWork.FilmeRepository.CreateRangeAsync(filmes);
-        _ofWork.CommitAsync();
+        await _ofWork.CommitAsync();
         
         return Created();
     }
@@ -171,7 +171,7 @@ public class FilmeController : ControllerBase
             
             backFilme.Id = 0;
             await _ofWork.FilmeRepository.CreateAsync(backFilme);
-            _ofWork.CommitAsync();
+            await _ofWork.CommitAsync();
             
             _cache.Remove("cache_Films");
             
@@ -190,7 +190,7 @@ public class FilmeController : ControllerBase
         
         filme.Id = 0;
         await _ofWork.FilmeRepository.CreateAsync(filme);
-        _ofWork.CommitAsync();
+        await _ofWork.CommitAsync();
         
         _cache.Remove("cache_Films");
         
@@ -215,7 +215,7 @@ public class FilmeController : ControllerBase
         res.ThumbnailUrl = filmeAtualizado.ThumbnailUrl;
 
         _ofWork.FilmeRepository.UpdateAsync(res);
-        _ofWork.CommitAsync();
+        await _ofWork.CommitAsync();
 
         _cache.Remove("cache_Films");
         return NoContent();
@@ -236,7 +236,7 @@ public class FilmeController : ControllerBase
         _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
 
         await _ofWork.FilmeRepository.DeleteAsync(id);
-        _ofWork.CommitAsync();
+        await _ofWork.CommitAsync();
         
         _cache.Remove("cache_Films");
         return Ok($"Filme {filmeDTO.Title} Deletado com sucesso");

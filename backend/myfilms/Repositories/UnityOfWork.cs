@@ -6,6 +6,7 @@ namespace myfilms.Repositories;
 public class UnityOfWork : IUnityOfWork
 {
     private IFilmeRepository _filmeRepo;
+    private IClientRepository _clientRepo;
     public AppDbContext _context;
 
     public UnityOfWork(AppDbContext context)
@@ -17,8 +18,13 @@ public class UnityOfWork : IUnityOfWork
     {
         get { return _filmeRepo ?? new FilmeRepository(_context); }
     }
+    
+    public IClientRepository ClientRepository
+    {
+        get { return _clientRepo ?? new ClientRepository(_context); }
+    }
 
-    public async void CommitAsync()
+    public async Task CommitAsync()
     {
         await _context.SaveChangesAsync();
     }

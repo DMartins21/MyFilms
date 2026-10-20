@@ -3,5 +3,6 @@
 public interface IUnityOfWork
 {
     public IFilmeRepository  FilmeRepository { get; }
-    void CommitAsync();
+    public IClientRepository ClientRepository { get; }
+    Task CommitAsync();
 }
