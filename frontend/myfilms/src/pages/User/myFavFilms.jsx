@@ -53,7 +53,7 @@ function MyFavFilms(){
             console.error(e)
         }
     }
-        if(favoritos.length == 0)
+        if(favoritos == null)
         return(
             <>
                 <div className="favs">

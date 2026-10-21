@@ -37,12 +37,7 @@ public class ClientController : ControllerBase
         var searchProfile = await _ofWork.ClientRepository.MyProfileAsync(user);
 
         if (searchProfile == null)
-            return NotFound(
-                new
-                {
-                    message = "Profile Not Found, Please create a Profile",
-                    status = StatusCodes.Status404NotFound
-                });
+            return StatusCode(StatusCodes.Status403Forbidden, new { message = "Profile not found" });
         
         return Ok(searchProfile);
     }

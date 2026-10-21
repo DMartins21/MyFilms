@@ -6,10 +6,24 @@ async function LoginApi(endpoint = '', options = {}){
 
         const response = await fetch(apiUrl, options)
 
-        const data = await response.json()
+        let data = null
 
+        if(response.status !== 204)
+        {
+            const text = await response.text();
+            if(text){
+                try{
+                    data = JSON.parse(text);
+                }catch {
+                    data = text;
+                }
+            }
+        }
         if(!response.ok){
-            throw new Error(data.message || response.statusText)
+            const error = new Error(data?.message || response.statusText)
+            error.status = response.status;
+            error.data = data;
+            throw error;
         }
 
         return data

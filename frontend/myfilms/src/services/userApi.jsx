@@ -15,8 +15,13 @@ async function UserApi(endpoint = '', options = {}) {
             throw new Error(response.statusText);
         }
 
+        if(response.status === 403){
+            window.location.href = '/user/createUser';
+            throw new Error(response.statusText)
+        }
+
         if(response.status === 204){
-            const text = response.text()
+            const text = await response.text()
             
             if(!text) return null
             

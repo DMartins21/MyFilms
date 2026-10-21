@@ -152,10 +152,11 @@ public class AuthController : ControllerBase
         });
     }
 
-    [HttpPost, Authorize(Policy = "SuperAdminOnly"), Route("Revoke/user")]
-    public async Task<IActionResult> Revoke(string userName)
+    [HttpPost, Authorize, Route("Revoke")]
+    public async Task<IActionResult> Revoke()
     {
-        var user = await _userManager.FindByNameAsync(userName);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var user = await _userManager.FindByIdAsync(userId);
 
         if (user == null)
             return BadRequest("Invalid userName");
@@ -166,7 +167,7 @@ public class AuthController : ControllerBase
 
         return NoContent();
     }
-
+    
     [HttpPost, Authorize(Policy = "SpecialUserOnly"), Route("CreateRole")]
     public async Task<IActionResult> CreateRole(string roleName)
     {
