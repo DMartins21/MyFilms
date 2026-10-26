@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using myfilms.Context;
 using myfilms.Models;
+using myfilms.Pagination;
 using myfilms.Repositories.Interfaces;
 
 namespace myfilms.Repositories;
@@ -10,6 +11,14 @@ public class FilmeRepository : Repository<Filme>, IFilmeRepository
 {
     public FilmeRepository(AppDbContext context) : base(context){}
 
+    public async Task<PagedList<Filme>> GetFilms(FilmsParams filmsParams)
+    {
+        var filmes = await _context.Filmes.AsQueryable()
+            .OrderBy(f => f.ReleaseDate)
+            .ToListAsync();
+        var filmesOrdenados = PagedList<Filme>.ToPagedList(filmes.AsQueryable(), filmsParams.PageNumber, filmsParams.PageSize);
+        return filmesOrdenados;
+    }
 
     public async Task<Filme> GetByFilmIdAsync(int id)
     {

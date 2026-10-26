@@ -8,7 +8,9 @@ using myfilms.DTOs;
 using myfilms.Models;
 using myfilms.Context;
 using myfilms.DTOs.Mappings;
+using myfilms.Pagination;
 using myfilms.Repositories.Interfaces;
+using Newtonsoft.Json;
 
 
 namespace myfilms.Controllers;
@@ -63,6 +65,27 @@ public class FilmeController : ControllerBase
         
         var filmesDTO = filmes.ToFilmeDTOList();
         
+        return Ok(filmesDTO);
+    }
+
+    [HttpGet("Pagination")]
+    public async Task<ActionResult<FilmeDTO>> GetFilms([FromQuery] FilmsParams filmsParams)
+    {
+        var filmes = await _ofWork.FilmeRepository.GetFilms(filmsParams);
+
+        var metadata = new
+        {
+            filmes.TotalCount,
+            filmes.PageSize,
+            filmes.CurrentPage,
+            filmes.TotalPages,
+            filmes.HasNextPage,
+            filmes.HasPreviousPage
+        };
+
+        Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
+        
+        var  filmesDTO = filmes.ToFilmeDTOList();
         return Ok(filmesDTO);
     }
 
