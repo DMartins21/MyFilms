@@ -89,6 +89,49 @@ public class FilmeController : ControllerBase
         return Ok(filmesDTO);
     }
 
+    [HttpGet("Pagination/FilmsByGenre")]
+    public async Task<ActionResult<FilmeDTO>> FilmsByGenre([FromQuery] SearchGenreFilm search)
+    {
+        var filmes = await _ofWork.FilmeRepository.GetFilmsWithGenres(search);
+        
+        var metadata = new
+        {
+            filmes.TotalCount,
+            filmes.PageSize,
+            filmes.CurrentPage,
+            filmes.TotalPages,
+            filmes.HasNextPage,
+            filmes.HasPreviousPage
+        };
+
+        Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
+        
+        var  filmesDTO = filmes.ToFilmeDTOList();
+        
+        return Ok(filmesDTO);
+    }
+
+    [HttpGet("Pagination/FilmsByYear")]
+    public async Task<ActionResult<FilmeDTO>> FilmsByYear([FromQuery] SearchFilmByYear search)
+    {
+        var filmes = await _ofWork.FilmeRepository.GetFilmsWithYear(search);
+        var metadata = new
+        {
+            filmes.TotalCount,
+            filmes.PageSize,
+            filmes.CurrentPage,
+            filmes.TotalPages,
+            filmes.HasNextPage,
+            filmes.HasPreviousPage
+        };
+
+        Response.Headers.Append("X-Pagination", JsonConvert.SerializeObject(metadata));
+        
+        var  filmesDTO = filmes.ToFilmeDTOList();
+
+        return Ok(filmesDTO);
+    }
+
     [HttpGet("FilmesRemovidos"), Authorize(Policy =  "AdminOnly")]
     public  ActionResult<IEnumerable<FilmeDTO>> GetFilmesRemovidos()
     {
@@ -115,12 +158,12 @@ public class FilmeController : ControllerBase
         
         if(!search.Any())
             return NoContent();
-
+    
         var filmeDTO = search.ToFilmeDTOList();
         
         return Ok(filmeDTO);
     }
-
+    
     [HttpPost("CreateFilm"),
      Route("/Create"), 
      Authorize(Policy = "AdminOnly")]
