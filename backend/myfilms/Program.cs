@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -88,15 +89,36 @@ builder.Services.AddAuthorization(options =>
     
     options.AddPolicy("UserOnly", policy => 
         policy.RequireClaim("User"));
-
-   
-    // options.AddPolicy("SpecialUserOnly", policy => 
-    //     policy.RequireAssertion(
-    //     context => context.User.HasClaim
-    //     (claim => claim.Type == "id"
-    //     && claim.Value == "davi"
-    //     || context.User.IsInRole("SuperAdmin"))));
 });
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetTokenBucketLimiter(partitionKey: context.User.Identity?.Name 
+                                                                 ?? context.Connection.RemoteIpAddress?.ToString()
+                                                                 ?? "anon",
+            factory: partition => new TokenBucketRateLimiterOptions
+            {
+                TokenLimit = 30,
+                TokensPerPeriod = 10,
+                ReplenishmentPeriod = TimeSpan.FromSeconds(10),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+    options.AddPolicy("loginLimiter", policy =>
+        RateLimitPartition.GetSlidingWindowLimiter(
+            partitionKey: policy.Connection.RemoteIpAddress?.ToString() ?? "anon",
+            factory: partition => new SlidingWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(15),
+                SegmentsPerWindow = 5,
+                QueueLimit = 0
+            }));
+});
+
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -107,18 +129,6 @@ builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
-});
-
-builder.Services.AddRateLimiter(options =>
-{
-    options.AddFixedWindowLimiter("api", limiter =>
-    {
-        limiter.PermitLimit = 20;
-        limiter.Window = TimeSpan.FromMinutes(1);
-        limiter.QueueLimit = 0;
-    });
-
-    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
 builder.Services.AddControllers().AddNewtonsoftJson();

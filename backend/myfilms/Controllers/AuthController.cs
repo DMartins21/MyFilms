@@ -12,7 +12,7 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace myfilms.Controllers;
 
-[EnableRateLimiting("api")]
+[EnableRateLimiting("loginLimiter")]
 [ApiController]
 public class AuthController : ControllerBase
 {

@@ -15,7 +15,6 @@ using Newtonsoft.Json;
 
 namespace myfilms.Controllers;
 
-[EnableRateLimiting("api")]
 [ApiController]
 [Route("api/[controller]")]
 public class FilmeController : ControllerBase
