@@ -134,6 +134,7 @@ builder.Services.AddOpenApi(options =>
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddMemoryCache(options =>
 {
+    options.SizeLimit = 1024;
     options.TrackStatistics = true;
 });
 
@@ -162,6 +163,7 @@ if(!app.Environment.IsDevelopment())
         context.Response.Headers.Append("X-Frame-Options", "DENY");
         await next();
     });
+    
 }
 app.UseRouting();
 app.UseCors("CorsPolicy");

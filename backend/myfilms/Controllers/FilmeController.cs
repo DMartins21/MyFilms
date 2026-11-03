@@ -31,8 +31,15 @@ public class FilmeController : ControllerBase
     private async Task<List<Filme>> GetFilmesInDB()
     {
         var filmes = await _ofWork.FilmeRepository.GetAsync();
+
+        var cacheOptions = new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
+            SlidingExpiration = TimeSpan.FromMinutes(2),
+            Size = 1
+        };
         
-        _cache.Set("cache_Films", filmes, TimeSpan.FromMinutes(30));
+        _cache.Set("cache_Films", filmes, cacheOptions);
         
         return filmes.ToList();
     }
@@ -43,6 +50,7 @@ public class FilmeController : ControllerBase
             filmes = await GetFilmesInDB();
         return filmes;
     }
+    
 
     private ActionResult<IEnumerable<FilmeDTO>> FilmesDeletados()
     {
@@ -177,7 +185,7 @@ public class FilmeController : ControllerBase
         await _ofWork.CommitAsync();
         
         _cache.Remove("cache_Films");
-
+        
         var created = filme.ToFilmeDTO();
 
         return Created($"api/Filme/{created.Id}", created);
@@ -206,6 +214,8 @@ public class FilmeController : ControllerBase
 
         await _ofWork.FilmeRepository.CreateRangeAsync(filmes);
         await _ofWork.CommitAsync();
+        
+        _cache.Remove("cache_Films");
         
         return Created();
     }
@@ -241,7 +251,14 @@ public class FilmeController : ControllerBase
             _cache.Remove("cache_Films");
             
             filmesRemoved.Remove(req);
-            _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
+            
+            var cacheOptions = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
+                SlidingExpiration = TimeSpan.FromMinutes(2),
+                Size = 1
+            };
+            _cache.Set("cache_FilmsDeleted", filmesRemoved, cacheOptions);
             
             return NoContent();
         }
@@ -297,13 +314,23 @@ public class FilmeController : ControllerBase
         
         if(!_cache.TryGetValue("cache_FilmsDeleted", out List<FilmeDTO>? filmesRemoved))
             filmesRemoved = new List<FilmeDTO>();
+        
         filmesRemoved!.Add(filmeDTO);
-        _cache.Set("cache_FilmsDeleted", filmesRemoved, TimeSpan.FromDays(1));
+        
+        var cacheOptions = new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5),
+            SlidingExpiration = TimeSpan.FromMinutes(2),
+            Size = 1
+        };
+        
+        _cache.Set("cache_FilmsDeleted", filmesRemoved, cacheOptions);
 
         await _ofWork.FilmeRepository.DeleteAsync(id);
         await _ofWork.CommitAsync();
         
         _cache.Remove("cache_Films");
+        
         return Ok($"Filme {filmeDTO.Title} Deletado com sucesso");
     }
 }
