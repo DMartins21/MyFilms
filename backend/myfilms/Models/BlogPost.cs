@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace myfilms.Models;
 
@@ -13,5 +14,6 @@ public class BlogPost
     public string TypeContent { get; set; }
     public DateOnly PublishedOn { get; set; }
     public int AuthorId { get; set; }
+    [JsonIgnore]
     public Client Author { get; set; }
 }

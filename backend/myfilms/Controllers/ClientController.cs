@@ -42,6 +42,20 @@ public class ClientController : ControllerBase
         return Ok(searchProfile);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> MyPosts()
+    {
+        var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (user == null)
+            return Unauthorized();
+        var clientPosts = await _ofWork.ClientRepository.GetPostsAsync(user);
+
+        var posts = clientPosts.Posts.ToPostDTOList();
+        
+        return Ok(posts);
+    }
+    
+    
     [HttpPost]
     public async Task<IActionResult> NewClient(ClientDTO client)
     {

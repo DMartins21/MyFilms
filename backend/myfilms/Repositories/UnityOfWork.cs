@@ -7,6 +7,7 @@ public class UnityOfWork : IUnityOfWork
 {
     private IFilmeRepository _filmeRepo;
     private IClientRepository _clientRepo;
+    private IBlogPostRepository _blogPostRepo;
     public AppDbContext _context;
 
     public UnityOfWork(AppDbContext context)
@@ -22,6 +23,11 @@ public class UnityOfWork : IUnityOfWork
     public IClientRepository ClientRepository
     {
         get { return _clientRepo ?? new ClientRepository(_context); }
+    }
+    
+    public IBlogPostRepository BlogPostRepository
+    {
+        get { return _blogPostRepo ?? new BlogPostRepository(_context); }
     }
 
     public async Task CommitAsync()

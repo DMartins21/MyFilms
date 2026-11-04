@@ -43,6 +43,23 @@ public class ClientRepository : Repository<Client>, IClientRepository
             .FirstOrDefaultAsync();
     }
 
+    public async Task<Client> GetPostsAsync(string userId)
+    {
+        return await _context.Clients
+            .Include(c => c.Posts)
+            .Where(c => c.UserId == userId)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<bool> NewPostAsync(string userId, BlogPost idPost)
+    {
+        var posts = await GetPostsAsync(userId);
+        if (idPost == null)
+            return false;
+        posts.Posts.Add(idPost);
+        return true;
+    }
+    
     public async Task<bool> FavoriteAsync(string userId, Filme idFilm)
     {
         var clientFilms = await GetFavsAsync(userId);
