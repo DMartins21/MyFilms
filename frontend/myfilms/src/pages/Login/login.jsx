@@ -4,7 +4,6 @@ import Api from '../../services/loginApi';
 import { toast } from 'react-toastify';
 import './css/loginStyle.css';
 
-
 function Login() {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
@@ -24,17 +23,13 @@ function Login() {
                     password
                 }),
             })
-            
             // console.log('Login success', data)
-            sessionStorage.setItem("user", userName.replace("_", " "))
             sessionStorage.setItem("tokenSession", data.token)
-            sessionStorage.setItem("refreshToken", data.refreshToken)
-            sessionStorage.setItem("expirationToken", data.expiration)
-            navigate('/')
-            toast.success("Login Efetuado com Sucesso")
             setTimeout(() => {
                 window.location.reload()
-            }, 3000);
+            }, 3500)
+            navigate('/user/myUser', { replace: true })
+            toast.success("Login Efetuado com Sucesso")
 
         } catch (e) {
             console.error('Um erro ocorreu:', e)
@@ -42,10 +37,10 @@ function Login() {
             toast.error(`Usuário ou senha Inválidos`)
             return null
         }
+        
     }
 
     useEffect(() => {
-
         if(errorMessage){
             const timer = setTimeout(() => setErrorMsg(''), 3000)
             return () => clearTimeout(timer)
@@ -68,7 +63,7 @@ function Login() {
                     <h4 className="form-label">Username</h4>
                     <input type="text" placeholder="Informe seu username" value={userName} onChange={(e) => setUserName(e.target.value)} required></input>
                     <h4 className="form-label">Password</h4>
-                    <input type="password" placeholder="Informe sua senha" value={password} onChange={(e) => setPassword(e.target.value)} required></input>
+                    <input type="password" placeholder="Informe sua senha" value={password} onChange={(e) => setPassword(e.target.value)} required ></input>
                     <br></br>
                     <Link to={'/register'} className="registerBtn">Criar Conta</Link>
                     <button className="form-button" type="submit">

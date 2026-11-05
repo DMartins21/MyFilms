@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 function MyUser(){
 
     const [user, setUser] = useState([]);
-
     useEffect(() => {
         try{
             async function getUser()

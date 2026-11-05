@@ -23,14 +23,24 @@ public class BlogPostController : ControllerBase
 
 
     [HttpGet,
-     Route("blog-posts")]
-    public async Task<ActionResult> GetBlogPosts()
+     Route("[controller]/[action]")]
+    public async Task<ActionResult> BlogPosts()
     {
         var posts = await _ofWork.BlogPostRepository.GetAsync();
         if (posts is null || !posts.Any())
             return NoContent();
         var postsDto = posts.ToPostDTOList();
         return Ok(postsDto);
+    }
+
+    [HttpGet,
+     Route("[controller]/[action]/{idPost}")]
+    public async Task<ActionResult> Post(int idPost)
+    {
+        var post = await _ofWork.BlogPostRepository.FindByIdAsync(idPost);
+        if (post == null)
+            return NotFound();
+        return Ok(post);
     }
     
     [HttpPost,

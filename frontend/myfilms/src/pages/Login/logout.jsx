@@ -22,21 +22,20 @@ function Logout() {
             toast.error(`Erro ao efetuar logout`)
             return null
         }
-            sessionStorage.removeItem("user")
             sessionStorage.removeItem("tokenSession")
-            sessionStorage.removeItem("refreshToken")
-            sessionStorage.removeItem("expirationToken")
-                        
-            toast.success("Logout Efetuado com Sucesso", {toastId: 'logout'})
-            setTimeout( () => {
+            sessionStorage.removeItem("role")
+
+            setTimeout(() => {
                 window.location.reload()
-            }, 2500)
+            }, 3500)
+            toast.success("Logout Efetuado com Sucesso", {toastId: 'logout'})
+
         
     }
 
     useEffect(() => {
         logoutUser()
-        navigate('/')
+        navigate('/', { replace: true })
     },[navigate])
 
 }
