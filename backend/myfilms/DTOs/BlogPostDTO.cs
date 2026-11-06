@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using myfilms.Models;
 
 namespace myfilms.DTOs;
 
@@ -13,4 +14,5 @@ public class BlogPostDTO
     public string TypeContent { get; set; }
     public DateOnly PublishedOn { get; set; }
     public int AuthorId { get; set; }
+    public ClientDTO? Author { get; set; }
 }

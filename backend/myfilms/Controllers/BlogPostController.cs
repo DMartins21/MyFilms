@@ -23,9 +23,11 @@ public class BlogPostController : ControllerBase
 
     private async Task<IEnumerable<BlogPostDTO>> PostsInMemory()
     {
-        var posts = await _ofWork.BlogPostRepository.GetAsync();
+        var posts = await _ofWork.BlogPostRepository.GetAllPostsAsync();
+        
         if (posts is null || !posts.Any())
             return new List<BlogPostDTO>();
+        
         var cacheOptions = new MemoryCacheEntryOptions
         {
             Size = 1,
@@ -33,14 +35,23 @@ public class BlogPostController : ControllerBase
             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
         };
         _cache.Set("PostsInMemory", posts, cacheOptions);
-        return posts.ToPostDTOList();
+        return posts;
+    }
+
+    private async Task<IEnumerable<BlogPostDTO>> GetPostsInMemory()
+    {
+        if (!_cache.TryGetValue("PostsInMemory", out IEnumerable<BlogPostDTO> posts))
+        {
+            posts = await PostsInMemory();
+        }
+        return posts;
     }
     
     [HttpGet,
      Route("[controller]/[action]")]
     public async Task<IActionResult> BlogPosts()
     {
-        var posts = await PostsInMemory();
+        var posts = await GetPostsInMemory();
         if (posts is null || !posts.Any())
             return NoContent();
         // var postsDto = posts.ToPostDTOList();

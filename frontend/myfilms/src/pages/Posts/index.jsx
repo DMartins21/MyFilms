@@ -12,7 +12,7 @@ function Posts()
 
     useEffect(() => {
         
-        async function getFilme()
+        async function getPosts()
         {
             try{
                 const data = await Api('BlogPosts')
@@ -24,7 +24,7 @@ function Posts()
             }
         }
 
-        getFilme()
+        getPosts()
 
     },[])
 
