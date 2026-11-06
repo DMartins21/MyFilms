@@ -1,0 +1,141 @@
+/* ===== Variáveis (escopo só desta página) ===== */
+.posts-container {
+  --cor-papel: #ffffff;
+  --cor-fundo: #868484;
+  --cor-texto: #111111;
+  --cor-texto-suave: #555555;
+  --cor-destaque: #c8102e;
+  --cor-destaque-hover: #9e0c24;
+  --cor-linha: #111111;
+  --cor-linha-suave: #d9d9d9;
+  --fonte-texto: "Georgia", "Times New Roman", serif;
+  --fonte-titulo: "Playfair Display", "Georgia", "Times New Roman", serif;
+  --fonte-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ===== Página ===== */
+.posts-container {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 40px 20px 56px;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===== Título da página (estilo título de jornal) ===== */
+.posts-container > h2 {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 0 28px;
+  padding: 22px 32px 16px;
+  background: var(--cor-papel);
+  border-top: 6px solid var(--cor-destaque);
+  border-bottom: 3px double var(--cor-linha);
+  text-align: center;
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--cor-texto);
+}
+
+/* ===== Grade de cards ===== */
+.posts-grid {
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* ===== Card ===== */
+.posts-container .getPosts-Card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 24px;
+  background: var(--cor-papel);
+  border: 1px solid var(--cor-linha-suave);
+  border-top: 3px solid var(--cor-linha);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Título do post
+   (reseta propriedades da outra página, que usa a mesma classe) */
+.posts-container .getPosts-Card .post-titulo {
+  margin: 0;
+  padding: 0;
+  border-bottom: 0;
+  font-family: var(--fonte-titulo);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--cor-texto);
+  overflow-wrap: anywhere;
+}
+
+/* Tipo de conteúdo */
+.posts-container .post-type {
+  font-family: var(--fonte-ui);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--cor-destaque);
+}
+
+/* Link "Ver Detalhes" (fica sempre no pé do card) */
+.posts-container .getPosts-Card a {
+  display: inline-block;
+  margin-top: auto;
+  padding: 10px 22px;
+  background: var(--cor-destaque);
+  border: 2px solid var(--cor-destaque);
+  font-family: var(--fonte-ui);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #ffffff;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.posts-container .getPosts-Card a:hover {
+  background: var(--cor-destaque-hover);
+  border-color: var(--cor-destaque-hover);
+}
+
+.posts-container .getPosts-Card a:focus-visible {
+  outline: 3px solid var(--cor-texto);
+  outline-offset: 3px;
+}
+
+/* ===== Responsivo ===== */
+@media (max-width: 600px) {
+  .posts-container {
+    padding: 20px 12px 40px;
+  }
+
+  .posts-container > h2 {
+    padding: 18px 20px 14px;
+  }
+
+  .posts-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .posts-container .getPosts-Card {
+    padding: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .posts-container .getPosts-Card a {
+    transition: none;
+  }
+}

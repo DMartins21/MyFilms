@@ -51,6 +51,11 @@ public class ClientRepository : Repository<Client>, IClientRepository
             .FirstOrDefaultAsync();
     }
 
+    public async Task<Client> FindByIdAsync(int id)
+    {
+        return await _context.Clients.FindAsync(id);
+    }
+
     public async Task<bool> NewPostAsync(string userId, BlogPost idPost)
     {
         var posts = await GetPostsAsync(userId);

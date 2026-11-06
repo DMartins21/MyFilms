@@ -2,6 +2,7 @@ import {useState, useEffect} from 'react'
 import {Link} from 'react-router-dom'
 import Error from '../Error'
 import Api from '../../services/blogPostApi'
+import './css/index.css'
 
 function Posts()
 {

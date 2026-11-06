@@ -21,16 +21,30 @@ public class BlogPostController : ControllerBase
         _cache = cache;
     }
 
-
-    [HttpGet,
-     Route("[controller]/[action]")]
-    public async Task<ActionResult> BlogPosts()
+    private async Task<IEnumerable<BlogPostDTO>> PostsInMemory()
     {
         var posts = await _ofWork.BlogPostRepository.GetAsync();
         if (posts is null || !posts.Any())
+            return new List<BlogPostDTO>();
+        var cacheOptions = new MemoryCacheEntryOptions
+        {
+            Size = 1,
+            SlidingExpiration = TimeSpan.FromMinutes(3),
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+        };
+        _cache.Set("PostsInMemory", posts, cacheOptions);
+        return posts.ToPostDTOList();
+    }
+    
+    [HttpGet,
+     Route("[controller]/[action]")]
+    public async Task<IActionResult> BlogPosts()
+    {
+        var posts = await PostsInMemory();
+        if (posts is null || !posts.Any())
             return NoContent();
-        var postsDto = posts.ToPostDTOList();
-        return Ok(postsDto);
+        // var postsDto = posts.ToPostDTOList();
+        return Ok(posts);
     }
 
     [HttpGet,
@@ -40,7 +54,10 @@ public class BlogPostController : ControllerBase
         var post = await _ofWork.BlogPostRepository.FindByIdAsync(idPost);
         if (post == null)
             return NotFound();
-        return Ok(post);
+       
+        var postDto = post.ToBlogPostDTO();
+
+        return Ok(postDto);
     }
     
     [HttpPost,
@@ -50,7 +67,9 @@ public class BlogPostController : ControllerBase
     {
         var author = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var infos = _ofWork.ClientRepository.MyUserAsync(author).Result;
+        var infos = await _ofWork.ClientRepository.MyUserAsync(author);
+
+        postDto.AuthorId = infos.Id;
         
         if (infos is null || infos.Id != postDto.AuthorId)
             return Forbid();
@@ -65,6 +84,8 @@ public class BlogPostController : ControllerBase
         
         await _ofWork.CommitAsync();
         
+        _cache.Remove("PostsInMemory");
+        
         return Created();
     }
 
@@ -78,7 +99,7 @@ public class BlogPostController : ControllerBase
         if(author is null)
             return Unauthorized();
         
-        var infos = _ofWork.ClientRepository.MyUserAsync(author).Result;
+        var infos = await _ofWork.ClientRepository.MyUserAsync(author);
         
         var post = await _ofWork.BlogPostRepository.FindByIdAsync(idPost);
         
@@ -91,6 +112,9 @@ public class BlogPostController : ControllerBase
         
         await _ofWork.BlogPostRepository.UpdateAsync(post);
         await  _ofWork.CommitAsync();
+        
+        _cache.Remove("PostsInMemory");
+        
         return NoContent();
 
     }
@@ -98,7 +122,7 @@ public class BlogPostController : ControllerBase
 
     [HttpDelete,
      Authorize,
-     Route("[controller]/[action]")]
+     Route("[controller]/[action]/{idPost}")]
     public async Task<ActionResult> DeletePost(int idPost)
     {
         var author = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -113,6 +137,9 @@ public class BlogPostController : ControllerBase
 
         await _ofWork.BlogPostRepository.DeleteAsync(post.Id);
         await _ofWork.CommitAsync();
+        
+        _cache.Remove("PostsInMemory");
+        
         return NoContent();
     }
     

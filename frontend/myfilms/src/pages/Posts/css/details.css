@@ -1,0 +1,209 @@
+/* ===== Variáveis (escopo só desta página) ===== */
+.post-detalhes-container {
+  --cor-papel: #ffffff;
+  --cor-texto: #111111;
+  --cor-texto-suave: #555555;
+  --cor-destaque: #c8102e;
+  --cor-destaque-hover: #9e0c24;
+  --cor-linha: #111111;
+  --cor-linha-suave: #d9d9d9;
+  --fonte-texto: "Georgia", "Times New Roman", serif;
+  --fonte-titulo: "Playfair Display", "Georgia", "Times New Roman", serif;
+  --fonte-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ===== Container com imagem de fundo ===== */
+.post-detalhes-container {
+  min-height: 100vh;
+  background-color: #eeeeee;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  display: flex;
+}
+
+/* ===== Véu claro sobre a imagem (a imagem aparece só de leve) ===== */
+.post-detalhe-overlay {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 40px 20px 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--cor-texto);
+}
+
+/* ===== Cabeçalho da página (estilo título de jornal) ===== */
+.Apresentacao {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0;
+  padding: 24px 32px 18px;
+  background: var(--cor-papel);
+  border-top: 6px solid var(--cor-destaque);
+  border-bottom: 3px double var(--cor-linha);
+  text-align: center;
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--cor-texto);
+}
+
+/* ===== "Folha" do jornal: duas colunas ===== */
+.post-detalhe-conteudo {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1000px;
+  padding: 32px;
+  background: var(--cor-papel);
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  column-gap: 32px;
+  align-items: start;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== Matéria principal ===== */
+.post-info-principal {
+  min-width: 0;
+}
+
+.post-titulo {
+  margin: 0 0 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--cor-linha);
+  font-family: var(--fonte-titulo);
+  font-size: clamp(1.8rem, 4.5vw, 2.9rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: var(--cor-texto);
+}
+
+.post-descricao {
+  margin: 0;
+  max-width: 68ch;
+  font-family: var(--fonte-texto);
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--cor-texto);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Letra capitular no início do texto */
+.post-descricao::first-letter {
+  float: left;
+  margin: 0.06em 0.1em 0 0;
+  font-family: var(--fonte-titulo);
+  font-size: 3.6em;
+  font-weight: 800;
+  line-height: 0.85;
+  color: var(--cor-destaque);
+}
+
+/* ===== Coluna lateral (separada por filete vertical) ===== */
+.post-info-lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 32px;
+  border-left: 1px solid var(--cor-linha);
+  font-family: var(--fonte-ui);
+}
+
+.post-info-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--cor-linha-suave);
+}
+
+.post-info-box:first-child {
+  padding-top: 0;
+}
+
+.post-info-box:last-child {
+  border-bottom: 0;
+}
+
+.post-info-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--cor-destaque);
+}
+
+.post-info-valor {
+  font-family: var(--fonte-texto);
+  font-size: 1.1rem;
+  color: var(--cor-texto);
+  overflow-wrap: anywhere;
+}
+
+/* ===== Botão Voltar ===== */
+.post-voltar {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 11px 26px;
+  background: var(--cor-destaque);
+  border: 2px solid var(--cor-destaque);
+  font-family: var(--fonte-ui);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #ffffff;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.post-voltar:hover {
+  background: var(--cor-destaque-hover);
+  border-color: var(--cor-destaque-hover);
+}
+
+.post-voltar:focus-visible {
+  outline: 3px solid var(--cor-texto);
+  outline-offset: 3px;
+}
+
+/* ===== Responsivo ===== */
+@media (max-width: 800px) {
+  .post-detalhe-overlay {
+    padding: 20px 12px 40px;
+  }
+
+  .Apresentacao {
+    padding: 18px 20px 14px;
+  }
+
+  .post-detalhe-conteudo {
+    grid-template-columns: 1fr;
+    padding: 22px 20px;
+  }
+
+  /* Lateral vai para baixo, separada por filete horizontal */
+  .post-info-lateral {
+    margin-top: 24px;
+    padding-left: 0;
+    padding-top: 20px;
+    border-left: 0;
+    border-top: 1px solid var(--cor-linha);
+  }
+
+  .post-info-box:first-child {
+    padding-top: 16px;
+  }
+
+  .post-detalhes-container {
+    background-attachment: scroll;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post-voltar {
+    transition: none;
+  }
+}

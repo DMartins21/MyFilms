@@ -7,6 +7,7 @@ public interface IClientRepository : IRepository<Client>
 {
     Task<ClientDTO?> MyProfileAsync(string idUser);
     Task<Client?> MyUserAsync(string idUser);
+    Task<Client> FindByIdAsync(int id);
     Task <Client> GetFavsAsync(string userId);
     Task<Client> GetPostsAsync(string userId);
     Task<bool> NewPostAsync(string userId, BlogPost idPost);

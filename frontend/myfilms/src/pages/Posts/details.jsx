@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react'
 import {useParams, Link} from 'react-router-dom'
 import Error from '../Error'
+import './css/details.css'
 import Api from '../../services/blogPostApi'
 
 
@@ -35,7 +36,7 @@ function Details()
         <>
             <div className="post-detalhes-container" style={{ backgroundImage: `url(${imageUrl})` }}>
                 <div className="post-detalhe-overlay">
-                <h2 className="Apresentacao">Detalhes Do Post : {post.title}</h2>
+                <h2 className="Apresentacao">O Seu Informativo Diário</h2>
             <div className="post-detalhe-conteudo">
                 <div className="post-info-principal">
                     <h3 className="post-titulo">{post.title}</h3>
