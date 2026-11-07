@@ -13,6 +13,7 @@ public class BlogPostDTO
     [Required(ErrorMessage = "Type is required")]
     public string TypeContent { get; set; }
     public DateOnly PublishedOn { get; set; }
+    public DateOnly? UpdatedOn { get; set; }
     public int AuthorId { get; set; }
     public ClientDTO? Author { get; set; }
 }

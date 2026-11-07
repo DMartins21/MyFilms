@@ -21,6 +21,7 @@ public class BlogPostRepository : Repository<BlogPost>, IBlogPostRepository
                 Content = p.Content,
                 TypeContent = p.TypeContent,
                 PublishedOn = p.PublishedOn,
+                UpdatedOn = p.UpdatedOn,
                 AuthorId = p.AuthorId,
             })
             .AsNoTracking()
@@ -39,6 +40,7 @@ public class BlogPostRepository : Repository<BlogPost>, IBlogPostRepository
                 Content = p.Content,
                 TypeContent = p.TypeContent,
                 PublishedOn = p.PublishedOn,
+                UpdatedOn = p.UpdatedOn,
                 AuthorId = p.AuthorId,
                 Author = new ClientDTO()
                 {
@@ -55,5 +57,10 @@ public class BlogPostRepository : Repository<BlogPost>, IBlogPostRepository
             return null;
         
         return post.ToBlogPost();
+    }
+
+    public async Task<BlogPost> FindPostId(int idPost)
+    {
+        return await _context.BlogPosts.FindAsync(idPost);
     }
 }

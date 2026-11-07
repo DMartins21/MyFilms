@@ -102,7 +102,7 @@ public class BlogPostController : ControllerBase
 
     [HttpPut,
      Authorize,
-     Route("[controller]/[action]")]
+     Route("[controller]/[action]/{idPost}")]
     public async Task<ActionResult<BlogPostDTO>> UpdatePost(int idPost, [FromBody] BlogPostDTO postDto)
     {
         var author = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -112,7 +112,7 @@ public class BlogPostController : ControllerBase
         
         var infos = await _ofWork.ClientRepository.MyUserAsync(author);
         
-        var post = await _ofWork.BlogPostRepository.FindByIdAsync(idPost);
+        var post = await _ofWork.BlogPostRepository.FindPostId(idPost);
         
         if(post == null && post.AuthorId != infos.Id)
             return NotFound();
@@ -120,6 +120,7 @@ public class BlogPostController : ControllerBase
         post.Title = postDto.Title;
         post.Content = postDto.Content;
         post.TypeContent  = postDto.TypeContent;
+        post.UpdatedOn = new DateOnly(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
         
         await _ofWork.BlogPostRepository.UpdateAsync(post);
         await  _ofWork.CommitAsync();
