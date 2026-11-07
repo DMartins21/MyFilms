@@ -13,7 +13,7 @@ public class BlogPost
     [Required(ErrorMessage = "Type is required")]
     public string TypeContent { get; set; }
     public DateOnly PublishedOn { get; set; }
+    public DateOnly? UpdatedOn { get; set; }
     public int AuthorId { get; set; }
-    [JsonIgnore]
     public Client Author { get; set; }
 }

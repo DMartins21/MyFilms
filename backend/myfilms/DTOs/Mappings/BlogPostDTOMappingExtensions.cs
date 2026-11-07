@@ -16,7 +16,9 @@ public static class BlogPostDTOMappingExtensions
             Content = post.Content,
             TypeContent = post.TypeContent,
             PublishedOn = post.PublishedOn,
+            UpdatedOn = post.UpdatedOn,
             AuthorId = post.AuthorId,
+            Author = post.Author.ToClientDTO(),
         };
         
         return blogPostDto;
@@ -34,7 +36,9 @@ public static class BlogPostDTOMappingExtensions
             Content = postDto.Content,
             TypeContent = postDto.TypeContent,
             PublishedOn = postDto.PublishedOn,
+            UpdatedOn = postDto.UpdatedOn,
             AuthorId = postDto.AuthorId,
+            Author = postDto.Author.ToClient(),
         };
         
         return post;
@@ -52,6 +56,7 @@ public static class BlogPostDTOMappingExtensions
             Content = post.Content,
             TypeContent = post.TypeContent,
             PublishedOn = post.PublishedOn,
+            UpdatedOn = post.UpdatedOn,
             AuthorId = post.AuthorId,
         }).ToList();
 

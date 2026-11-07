@@ -46,10 +46,16 @@ function Details()
                     <div className="post-info-box">
                          <span className="post-info-label">Publicado em:</span>
                          <span className="post-info-valor">{post.publishedOn}</span>
+                         <span className='post-info-label'>Última Atualização</span>
+                         <span className='post-info-valor'>{post.updatedOn}</span>
                     </div>
                 <div className="post-info-box">
                     <span className="post-info-label">Tipo de Conteúdo:</span>
                     <span className="post-info-valor">{post.typeContent}</span>
+                </div>
+                <div className='post-info-box'>
+                    <span className='post-info-label'>Author</span>
+                    <span className='post-info-valor'>{[`${post.author.name} ${post.author.lastName}`]}</span>
                 </div>
                 </div>
             </div>

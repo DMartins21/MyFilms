@@ -14,6 +14,7 @@ using myfilms.Models;
 using myfilms.Repositories;
 using myfilms.Repositories.Interfaces;
 using myfilms.Services;
+using Newtonsoft.Json;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -132,7 +133,10 @@ builder.Services.AddOpenApi(options =>
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
 });
 
-builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+});
 builder.Services.AddMemoryCache(options =>
 {
     options.SizeLimit = 1024;
