@@ -30,6 +30,8 @@ import MyFavFilms from '../pages/User/myFavFilms.jsx'
 //Posts
 import Posts from '../pages/Posts/index.jsx'
 import PostDetails from '../pages/Posts/details.jsx'
+import MyPosts from '../pages/User/myPosts.jsx'
+import NewPost from '../pages/Posts/newPost.jsx'
 
 
 function RoutesApp()
@@ -48,12 +50,14 @@ function RoutesApp()
                     <Route path='/posts/:id' element={< PostDetails />} />
                     <Route path='/' element={< App />} />
 
-                    <Route element={<ProtectRoute allowedRoles={['Admin', 'User']} />}>
+                    <Route element={<ProtectRoute allowedRoles={['Admin', 'User', 'SuperAdmin']} />}>
 
                         <Route path='/user/favs' element={< MyFavFilms />} />
                         <Route path='/user/myUser' element={< MyUser />} />
                         <Route path="/user/createUser" element={< CreateUser />} />
+                        <Route path='/posts/newpost' element={<NewPost />} />
                         <Route path='/user/modify' element={< ModifyUser />} />
+                        <Route path='/user/myPosts' element={< MyPosts />} />
                         <Route path='/logout' element={< Logout />} />
 
                     </Route>

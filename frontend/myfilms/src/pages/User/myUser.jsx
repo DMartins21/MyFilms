@@ -57,8 +57,16 @@ function MyUser(){
                         </div>
                     </dl>
                 </article>
-
-                <Link className="link" to={'/user/modify'}>Alterar Dados</Link>
+                
+                <article className='options-user'>
+                    <h3>Opções</h3>
+                        <div className='links'>
+                            <Link className="link" to={'/user/modify'}>Alterar Dados</Link>
+                            <Link className='link' to={'/posts/newPost'}>Novo Post</Link>
+                            <Link className='link' to={'/user/myPosts'}>Meus Posts</Link>
+                            <Link className='link' to={'/user/favs'}>Lista de Favoritos</Link>
+                        </div>
+                </article>
 
             </section>
         </>

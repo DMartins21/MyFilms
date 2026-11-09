@@ -11,13 +11,14 @@ export default function Footer() {
             <div className="footer-content">
                 <div className="footer-brand">
                     <Link to="/" className="footer-logo">MyFilms</Link>
-                    <p>Seu catálogo pessoal de filmes: cadastre, organize e redescubra o que você já assistiu.</p>
+                    <p>Seu catálogo pessoal de filmes: cadastre, organize, redescubra e opine sobre o que você já assistiu.</p>
                 </div>
 
                 <nav className="footer-nav" aria-label="Rodapé">
                     <h3>Navegação</h3>
                     <ul>
-                        <li><Link to="/">Início</Link></li>
+                        <li> <Link to="/">Início</Link> </li>
+                        <li> <Link to="/posts">Posts</Link> </li>
                     </ul>
                 </nav>
 

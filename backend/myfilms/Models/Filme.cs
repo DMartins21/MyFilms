@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Text.Json.Serialization;
 
 namespace myfilms.Models;
 
@@ -20,4 +21,6 @@ public class Filme
     public string ImageUrl {get; set; }
     [DataType(DataType.ImageUrl)]
     public string ThumbnailUrl {get; set; }
+    [JsonIgnore]
+    public List<Client> Clients {get; set; }
 }

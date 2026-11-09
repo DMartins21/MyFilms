@@ -20,13 +20,13 @@ async function BlogPostApi(endpoint = '', options = {}) {
             throw new Error(response.statusText)
         }
 
-        if(response.status === 204){
+        if(response.status === 204 || response.status === 201){
             const text = await response.text()
             
             if(!text) return null
             
             try{
-                JSON.parse(text)
+                return JSON.parse(text)
             }catch{
                 return text
             }

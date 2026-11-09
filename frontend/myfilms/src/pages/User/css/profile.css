@@ -1,11 +1,10 @@
-/* Linha 1: Foto | Dados | Nascimento
-   Linha 2: botão "Alterar Dados" centralizado */
+/* Linha 1: Foto | Dados | Nascimento | Opções */
 .info-user {
     display: grid;
-    grid-template-columns: auto 2fr 1fr;
+    grid-template-columns: auto 2fr 1fr 1fr;
     align-items: stretch;
     gap: 2rem;
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 2.5rem 1rem;
 }
@@ -21,7 +20,7 @@
     box-shadow: 0 0 0 6px rgba(229, 9, 20, 0.12);
 }
 
-/* Os dois cartões: não dependem de classes extras no <article> */
+/* Os cartões (Dados, Nascimento e Opções): não dependem de classes extras no <article> */
 .info-user article {
     background-color: #141414;
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -69,27 +68,56 @@
     white-space: nowrap;
 }
 
-/* Botão "Alterar Dados": ocupa a linha de baixo, centralizado */
-.info-user .link {
-    grid-column: 1 / -1;
-    justify-self: center;
-    background-color: #e50914;
-    color: #fff;
-    font-size: 0.95rem;
-    font-weight: 700;
-    padding: 0.75rem 1.6rem;
+/* Cartão "Opções": lista vertical de links */
+.info-user .options-user .links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.info-user .options-user .link {
+    box-sizing: border-box;
+    display: block;
+    margin: 0;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 6px;
+    color: #e0e0e0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 0.7rem 0.9rem;
     text-decoration: none;
-    transition: background-color 0.25s ease;
+    transition: background-color 0.25s ease, border-color 0.25s ease,
+        color 0.25s ease;
 }
 
-.info-user .link:hover {
-    background-color: #b8070f;
+.info-user .options-user .link:hover {
+    background-color: #e50914;
+    border-color: #e50914;
+    color: #fff;
 }
 
-.info-user .link:focus-visible {
+.info-user .options-user .link:focus-visible {
     outline: 2px solid #fff;
     outline-offset: 2px;
+}
+
+/* telas médias: foto e Dados ocupam a linha toda,
+   Nascimento e Opções ficam lado a lado embaixo */
+@media (max-width: 1100px) {
+    .info-user {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .info-user .profile-picture {
+        grid-column: 1 / -1;
+        justify-self: center;
+    }
+
+    .info-user .profile-picture + article {
+        grid-column: 1 / -1;
+    }
 }
 
 /* telas menores: empilha tudo */
