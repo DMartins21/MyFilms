@@ -21,19 +21,12 @@ function NavBar(){
              ) : (
             <>
                 <NavLink to="/user/myUser" >Meu Perfil</NavLink>
-                <NavLink to="/user/favs" >Meus Favoritos</NavLink>
                 {role === 'Admin' || role === 'SuperAdmin' && (
                     <NavLink to="/filmes/submit" >Cadastrar Filme</NavLink>
                 )}
                 <NavLink to="/logout" >Logout</NavLink>
             </>
         
-            )}
-
-            {role === 'Admin' || role === 'SuperAdmin' && (
-                <>
-                <NavLink to="/filmes/submit" >Cadastrar Filme</NavLink>
-                </>
             )}
     
         </div>

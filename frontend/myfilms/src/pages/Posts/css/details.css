@@ -44,6 +44,7 @@
   background: var(--cor-papel);
   border-top: 6px solid var(--cor-destaque);
   border-bottom: 3px double var(--cor-linha);
+  border-radius: 15px;
   text-align: center;
   font-family: var(--fonte-titulo);
   font-size: clamp(1.1rem, 2.5vw, 1.5rem);
@@ -58,6 +59,7 @@
   width: 100%;
   max-width: 1000px;
   padding: 32px;
+  border-radius: 15px;
   background: var(--cor-papel);
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
@@ -155,6 +157,7 @@
   font-size: 0.95rem;
   font-weight: 600;
   text-decoration: none;
+  border-radius: 14px;
   color: #ffffff;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
@@ -162,6 +165,7 @@
 .post-voltar:hover {
   background: var(--cor-destaque-hover);
   border-color: var(--cor-destaque-hover);
+  border-radius: 14px;
 }
 
 .post-voltar:focus-visible {
