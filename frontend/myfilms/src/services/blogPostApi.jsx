@@ -1,6 +1,7 @@
+const BASE_URL = import.meta.env.VITE_REACT_PUBLIC_API_URL;
+
 async function BlogPostApi(endpoint = '', options = {}) {
-    
-    const url = `http://localhost:5290/BlogPost/${endpoint}`;
+    const url = `${BASE_URL}/BlogPost/${endpoint}`;
 
     try{
 

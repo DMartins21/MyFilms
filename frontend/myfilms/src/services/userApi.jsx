@@ -1,6 +1,8 @@
+const BASE_URL = import.meta.env.VITE_REACT_PUBLIC_API_URL;
+
 async function UserApi(endpoint = '', options = {}) {
     
-    const url = `http://localhost:5290/Client/${endpoint}`;
+    const url = `${BASE_URL}/Client/${endpoint}`;
 
     try{
 
