@@ -150,6 +150,9 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
             .AllowAnyMethod();
+        policy.WithOrigins("https:myfilms-five.vercel.app")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 builder.Services.AddProblemDetails();

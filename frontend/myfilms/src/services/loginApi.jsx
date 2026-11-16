@@ -1,6 +1,7 @@
+const BASE_URL = import.meta.env.VITE_REACT_PUBLIC_API_URL;
 
 async function LoginApi(endpoint = '', options = {}){
-    const apiUrl = `http://localhost:5290/${endpoint}`
+    const apiUrl = `${BASE_URL}/${endpoint}`
 
     try {
 

@@ -1,5 +1,7 @@
+const BASE_URL = import.meta.env.VITE_REACT_PUBLIC_API_URL;
+
 async function FilmesApi(endpoint = '', value = '', options = {}){
-    const apiUrl = value ? `http://localhost:5290/api/Filme/${endpoint}/${encodeURIComponent(value)}` : `http://localhost:5290/api/Filme/${endpoint}`
+    const apiUrl = value ? `${BASE_URL}/api/Filme/${endpoint}/${encodeURIComponent(value)}` : `${BASE_URL}/api/Filme/${endpoint}`
 
     try {
 
