@@ -5,6 +5,8 @@ import Search from "../Search"
 function NavBar(){
 
     const role = sessionStorage.getItem("role")
+    const allowedRules = ['admin', 'superadmin']
+    const isAuthorized = role && allowedRules.includes(role.toLocaleLowerCase())
 
     return(
         <>
@@ -21,7 +23,7 @@ function NavBar(){
              ) : (
             <>
                 <NavLink to="/user/myUser" >Meu Perfil</NavLink>
-                {role === 'Admin' || role === 'SuperAdmin' && (
+                {isAuthorized && (
                     <NavLink to="/filmes/submit" >Cadastrar Filme</NavLink>
                 )}
                 <NavLink to="/logout" >Logout</NavLink>

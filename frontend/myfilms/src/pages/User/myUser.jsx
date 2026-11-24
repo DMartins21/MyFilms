@@ -2,10 +2,13 @@ import '../User/css/profile.css'
 import Api from '../../services/userApi';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import defaultPicture from '../../assets/pexels-mk_photoz-2149411980-32703420.jpg'
 
 function MyUser(){
 
     const [user, setUser] = useState([]);
+
+
     useEffect(() => {
         try{
             async function getUser()
@@ -29,8 +32,14 @@ function MyUser(){
     return(
         <>
             <section className='info-user'>
-                <img className='profile-picture'
-                src={user.profilePictureUrl} />
+                {user.profilePictureUrl ? (
+                    <img className='profile-picture'
+                    src={user.profilePictureUrl} />
+                ) : (
+                    <img className='profile-picture' src={defaultPicture} />
+                )
+            }
+
                 
                 <article >
                     <h2 className='title'>Meus Dados</h2>

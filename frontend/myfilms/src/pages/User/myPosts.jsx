@@ -20,7 +20,7 @@ function MyPosts()
     }
      
     getMyPosts();
-    })
+    },[setPost])
 
 
     if(post.length < 1){
@@ -44,7 +44,8 @@ function MyPosts()
                             <h4 className='title'>{item.title}</h4>
                             <span className='content'>{item.content}</span>
                             <p className='type-content'>{item.typeContent}</p>
-                            <Link to={`/posts/${item.id}`}>Ver Post Completo</Link>
+                            <Link className='post-completo' to={`/posts/${item.id}`}>Ver Post Completo</Link>
+                            <Link className='editar-post' to={`/posts/update/${item.id}`}>Editar Conteúdo</Link>
                         </li>
                     </ul>
                 </div>

@@ -159,6 +159,63 @@
   outline-offset: 3px;
 }
 
+.posts-list .item .post-completo,
+.posts-list .item .editar-post {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 11px 22px;
+  border: 2px solid #c8102e;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* "Ver Post Completo": principal (vermelho) com seta */
+.posts-list .item .post-completo {
+  background: #c8102e;
+  color: #ffffff;
+}
+
+.posts-list .item .post-completo::after {
+  content: "\2192";
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.posts-list .item .post-completo:hover {
+  background: #9e0c24;
+  border-color: #9e0c24;
+}
+
+.posts-list .item .post-completo:hover::after {
+  transform: translateX(4px);
+}
+
+/* "Editar Conteúdo": secundário (contorno preto) */
+.posts-list .item .editar-post {
+  background: transparent;
+  border-color: #111111;
+  color: #111111;
+}
+
+.posts-list .item .editar-post:hover {
+  background: #111111;
+  color: #ffffff;
+}
+
+.posts-list .item .post-completo:focus-visible,
+.posts-list .item .editar-post:focus-visible {
+  outline: 3px solid #111111;
+  outline-offset: 3px;
+}
+
 /* ===== Responsivo ===== */
 @media (max-width: 600px) {
   .posts-list {
@@ -181,6 +238,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .posts-list .item a {
+    transition: none;
+  }
+   .posts-list .item .post-completo,
+  .posts-list .item .editar-post,
+  .posts-list .item .post-completo::after {
     transition: none;
   }
 }
