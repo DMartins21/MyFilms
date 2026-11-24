@@ -59,6 +59,7 @@ function Details()
                 </div>
                 </div>
             </div>
+            <Link to={`/posts/update/${post.id}`} className='update-post'>Atualizar</Link>
              <Link to="/posts" className='post-voltar'>Voltar</Link>
              <br></br>
             </div>
