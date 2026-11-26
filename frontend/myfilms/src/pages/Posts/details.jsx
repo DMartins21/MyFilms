@@ -3,6 +3,7 @@ import {useParams, Link} from 'react-router-dom'
 import Error from '../Error'
 import './css/details.css'
 import Api from '../../services/blogPostApi'
+import {MdArrowBack} from 'react-icons/md';
 
 
 function Details()
@@ -21,7 +22,6 @@ function Details()
                 console.error('Ocorreu um erro na requisição:', error)
             }
         }
-
         getDetails()
 
     },[id])
@@ -59,8 +59,7 @@ function Details()
                 </div>
                 </div>
             </div>
-            <Link to={`/posts/update/${post.id}`} className='update-post'>Atualizar</Link>
-             <Link to="/posts" className='post-voltar'>Voltar</Link>
+             <Link to="/posts" className='post-voltar'><MdArrowBack size={12}/> Voltar </Link>
              <br></br>
             </div>
         </div>
