@@ -146,10 +146,23 @@
   overflow-wrap: anywhere;
 }
 
+.update-post{
+  display: inline-block;
+  margin-top: 10px;
+  margin-bottom: 2px;
+  padding: 12px 16px;
+  border: 2px solid var(--cor-destaque);
+  background-color: var(--cor-destaque);
+  font-family: var(--fonte-ui);
+  font-weight: 500;
+  color: var(--cor-linha-suave);
+  border-radius: 14px;
+}
+
 /* ===== Botão Voltar ===== */
 .post-voltar {
   display: inline-block;
-  margin-top: 24px;
+  margin-top: 14px;
   padding: 11px 26px;
   background: var(--cor-destaque);
   border: 2px solid var(--cor-destaque);
@@ -168,7 +181,18 @@
   border-radius: 14px;
 }
 
+.update-post:hover {
+  background: var(--cor-destaque-hover);
+  border-color: var(--cor-destaque-hover);
+  border-radius: 14px;
+}
+
 .post-voltar:focus-visible {
+  outline: 3px solid var(--cor-texto);
+  outline-offset: 3px;
+}
+
+.update-post:focus-visible {
   outline: 3px solid var(--cor-texto);
   outline-offset: 3px;
 }

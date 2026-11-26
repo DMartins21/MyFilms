@@ -34,7 +34,7 @@ function Details()
         </>)
     async function inFavList()
     {
-        const list = JSON.parse(sessionStorage.getItem('Favorites') || [])
+        const list = JSON.parse(sessionStorage.getItem('Favorites') || '[]')
         const inList = list.some(f => f.id == id)
         if(inList)
         {

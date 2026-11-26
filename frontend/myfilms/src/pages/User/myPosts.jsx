@@ -2,6 +2,7 @@ import './css/myPosts.css'
 import Api from '../../services/userApi'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
+import { FaRegEdit } from 'react-icons/fa';
 
 function MyPosts()
 {
@@ -20,7 +21,7 @@ function MyPosts()
     }
      
     getMyPosts();
-    })
+    },[setPost])
 
 
     if(post.length < 1){
@@ -38,13 +39,14 @@ function MyPosts()
             <div className='posts-list'>
                 <h2>Meus Posts</h2>
                 {post.map( item => (
-                <div className='post-cards'>
+                <div className='post-cards' key={item.id}>
                     <ul className='list'>
                         <li className='item'>
                             <h4 className='title'>{item.title}</h4>
                             <span className='content'>{item.content}</span>
                             <p className='type-content'>{item.typeContent}</p>
-                            <Link to={`/posts/${item.id}`}>Ver Post Completo</Link>
+                            <Link className='post-completo' to={`/posts/${item.id}`}>Ver Post Completo</Link>
+                            <Link className='editar-post' to={`/posts/update/${item.id}`}><FaRegEdit/>Editar Conteúdo</Link>
                         </li>
                     </ul>
                 </div>

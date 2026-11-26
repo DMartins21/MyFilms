@@ -32,6 +32,7 @@ import Posts from '../pages/Posts/index.jsx'
 import PostDetails from '../pages/Posts/details.jsx'
 import MyPosts from '../pages/User/myPosts.jsx'
 import NewPost from '../pages/Posts/newPost.jsx'
+import UpdatePost from '../pages/Posts/updatePost.jsx'
 
 
 function RoutesApp()
@@ -56,6 +57,7 @@ function RoutesApp()
                         <Route path='/user/myUser' element={< MyUser />} />
                         <Route path="/user/createUser" element={< CreateUser />} />
                         <Route path='/posts/newpost' element={<NewPost />} />
+                        <Route path='/posts/update/:id' element={<UpdatePost/> } />
                         <Route path='/user/modify' element={< ModifyUser />} />
                         <Route path='/user/myPosts' element={< MyPosts />} />
                         <Route path='/logout' element={< Logout />} />
