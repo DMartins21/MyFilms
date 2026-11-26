@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom'
 import api from '../../services/blogPostApi'
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import './css/newpost.css'
+import './css/newPost.css'
 
 
 function UpdatePost(){
