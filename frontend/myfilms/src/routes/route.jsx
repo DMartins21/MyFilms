@@ -33,6 +33,9 @@ import PostDetails from '../pages/Posts/details.jsx'
 import MyPosts from '../pages/User/myPosts.jsx'
 import NewPost from '../pages/Posts/newPost.jsx'
 import UpdatePost from '../pages/Posts/updatePost.jsx'
+import AdminFilms from '../pages/Admin/AdminFilms.jsx'
+
+//Admin
 
 
 function RoutesApp()
@@ -65,6 +68,7 @@ function RoutesApp()
                     </Route>
                     <Route element={<ProtectRoute allowedRoles={['Admin', 'SuperAdmin']} />}>
                         <Route path='/filmes/submit' element={< SubmitFilm />} />
+                        <Route path='/admin/optionsFilms' element={<AdminFilms/>} />
                     </Route>
 
                     <Route path='/unauthorized' element={< Unauthorized />} />
