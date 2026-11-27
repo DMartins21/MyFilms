@@ -3,7 +3,7 @@ import api from '../../services/blogPostApi'
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import './css/newPost.css'
-
+ 
 
 function UpdatePost(){
 

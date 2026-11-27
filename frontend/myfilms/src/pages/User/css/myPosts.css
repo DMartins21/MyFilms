@@ -65,6 +65,7 @@
   border-top: 3px solid var(--cor-linha);
   border-radius: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin-bottom: 5px;
 }
 
 /* Remove o visual padrão da lista */

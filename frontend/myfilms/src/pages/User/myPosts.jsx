@@ -1,12 +1,16 @@
 import './css/myPosts.css'
 import Api from '../../services/userApi'
+import PostsApi from '../../services/blogPostApi'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import { FaRegEdit } from 'react-icons/fa';
+import { MdDelete  } from 'react-icons/md'
+import { toast } from 'react-toastify';
 
 function MyPosts()
 {
     const [post, setPost] = useState([]);
+
     useEffect(() => {
     async function getMyPosts()
     {
@@ -23,6 +27,24 @@ function MyPosts()
     getMyPosts();
     },[setPost])
 
+    async function handleDelete(id) {
+        try{
+            await PostsApi(`DeletePost/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('tokenSession')}`
+            },
+        })
+
+        toast.success('Post Deletado!')
+        setTimeout(() => {
+                window.location.reload()
+            }, 5000)
+    }catch(error){
+            console.error(error)
+            return
+        }
+    }
 
     if(post.length < 1){
         return(
@@ -47,6 +69,7 @@ function MyPosts()
                             <p className='type-content'>{item.typeContent}</p>
                             <Link className='post-completo' to={`/posts/${item.id}`}>Ver Post Completo</Link>
                             <Link className='editar-post' to={`/posts/update/${item.id}`}><FaRegEdit/>Editar Conteúdo</Link>
+                            <button onClick={() => handleDelete(item.id)}><MdDelete color='red' scale={14}></MdDelete>Delete</button>
                         </li>
                     </ul>
                 </div>
